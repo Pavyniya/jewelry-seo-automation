@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import Reviews from './pages/Reviews'
 import Analytics from './pages/Analytics'
+import SEOAnalytics from './pages/SEOAnalytics'
 import Settings from './pages/Settings'
 import { ContentReview } from './pages/ContentReview'
 import { AnalyticsDashboard } from './pages/analytics/Dashboard'
@@ -61,6 +62,7 @@ function App() {
                 <Route path="/reviews" element={<Reviews />} />
                 <Route path="/content-review/:reviewId" element={<ContentReview />} />
                 <Route path="/analytics" element={<Analytics />} />
+                <Route path="/seo-analytics" element={<SEOAnalytics />} />
                 <Route path="/system-monitoring" element={<AnalyticsDashboard />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>

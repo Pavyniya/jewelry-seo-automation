@@ -5,6 +5,7 @@ interface InputProps {
   placeholder?: string
   value?: string | number
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   disabled?: boolean
   className?: string
   id?: string
@@ -12,7 +13,7 @@ interface InputProps {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ type = 'text', placeholder, value, onChange, disabled = false, className = '', id, 'aria-label': ariaLabel }, ref) => {
+  ({ type = 'text', placeholder, value, onChange, onKeyDown, disabled = false, className = '', id, 'aria-label': ariaLabel }, ref) => {
     return (
       <input
         ref={ref}
@@ -21,6 +22,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         disabled={disabled}
         aria-label={ariaLabel}
         className={`

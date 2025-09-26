@@ -7,6 +7,7 @@ import {
   Package,
   MessageSquare,
   BarChart3,
+  TrendingUp,
   Settings,
   LogOut,
   X,
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Products', href: '/products', icon: Package },
   { name: 'Reviews', href: '/reviews', icon: MessageSquare },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'SEO Analytics', href: '/seo-analytics', icon: TrendingUp },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
