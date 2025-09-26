@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/Progress';
 import { Gem, TrendingUp, Clock } from 'lucide-react';
 import { Product } from '@/types/product';
 import { useProductStore } from '@/stores/productStore';
+import { ReviewModal } from '@/components/review/ReviewModal';
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { selectedProducts, toggleProductSelection } = useProductStore();
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const getStatusColor = (status: Product['status']) => {
     switch (status) {
@@ -58,7 +60,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   }
 
   return (
-    <Card className={`hover:shadow-lg transition-shadow ${selectedProducts.includes(product.id) ? 'ring-2 ring-primary-500' : ''}`}>
+    <>
+      <Card className={`hover:shadow-lg transition-shadow ${selectedProducts.includes(product.id) ? 'ring-2 ring-primary-500' : ''}`}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
@@ -132,12 +135,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <Button variant="outline" size="sm" className="flex-1">
             Edit
           </Button>
-          <Button size="sm" className="flex-1">
+          <Button
+            size="sm"
+            className="flex-1"
+            onClick={() => setShowReviewModal(true)}
+          >
             Optimize
           </Button>
         </div>
       </CardContent>
-    </Card>
+      </Card>
+
+      <ReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        product={product}
+      />
+    </>
   );
 };
 

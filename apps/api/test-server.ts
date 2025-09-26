@@ -313,6 +313,288 @@ app.post('/api/v1/products/deduplicate', (req, res) => {
   }
 });
 
+// Review workflow endpoints
+app.get('/api/v1/reviews', (req, res) => {
+  const { status, reviewer, priority } = req.query;
+  let filteredReviews = [];
+
+  // Mock reviews data based on synced products
+  const mockReviews = realProducts.slice(0, 10).map((product, index) => ({
+    id: `review-${product.id}`,
+    productId: product.id,
+    productName: product.title,
+    type: index % 3 === 0 ? 'content' : index % 3 === 1 ? 'seo' : 'compliance',
+    status: ['pending', 'approved', 'rejected', 'needs_revision'][index % 4],
+    reviewer: 'AI Assistant',
+    submittedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+    reviewedAt: index % 2 === 0 ? new Date().toISOString() : null,
+    priority: ['high', 'medium', 'low'][index % 3],
+    estimatedReviewTime: 5 + Math.floor(Math.random() * 15),
+    assignedTo: index % 3 === 0 ? 'Admin' : null,
+    feedback: index % 2 === 0 ? 'Great optimization work!' : null,
+    score: 70 + Math.floor(Math.random() * 30),
+    contentDiffs: [
+      {
+        type: 'added',
+        text: 'premium quality features',
+        position: 100,
+        originalText: ''
+      },
+      {
+        type: 'modified',
+        text: product.title,
+        position: 0,
+        originalText: product.title
+      }
+    ]
+  }));
+
+  // Apply filters
+  filteredReviews = mockReviews.filter(review => {
+    if (status && review.status !== status) return false;
+    if (reviewer && review.reviewer !== reviewer) return false;
+    if (priority && review.priority !== priority) return false;
+    return true;
+  });
+
+  res.json({
+    success: true,
+    data: {
+      reviews: filteredReviews,
+      total: filteredReviews.length,
+      stats: {
+        pending: filteredReviews.filter(r => r.status === 'pending').length,
+        approved: filteredReviews.filter(r => r.status === 'approved').length,
+        rejected: filteredReviews.filter(r => r.status === 'rejected').length,
+        needs_revision: filteredReviews.filter(r => r.status === 'needs_revision').length
+      }
+    }
+  });
+});
+
+app.get('/api/v1/reviews/:id', (req, res) => {
+  const { id } = req.params;
+  const product = realProducts.find(p => p.id === id.replace('review-', ''));
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      error: 'Review not found'
+    });
+  }
+
+  const review = {
+    id,
+    productId: product.id,
+    productName: product.title,
+    type: 'seo',
+    status: 'pending',
+    reviewer: 'AI Assistant',
+    submittedAt: new Date().toISOString(),
+    reviewedAt: null,
+    priority: 'medium',
+    estimatedReviewTime: 10,
+    assignedTo: null,
+    feedback: null,
+    score: 85,
+    contentDiffs: [
+      {
+        type: 'added',
+        text: 'premium quality features',
+        position: 100,
+        originalText: ''
+      },
+      {
+        type: 'modified',
+        text: product.title,
+        position: 0,
+        originalText: product.title
+      }
+    ],
+    originalContent: {
+      title: product.title,
+      description: product.description || '',
+      seoTitle: product.seoTitle,
+      seoDescription: product.seoDescription
+    },
+    optimizedContent: {
+      title: `${product.title} | Fine Jewelry Collection`,
+      description: `${product.description || ''}\n\n✨ **Premium Quality Features:**\n• Expertly crafted with attention to detail\n• Perfect for special occasions and everyday elegance\n• Timeless design that complements any style`,
+      seoTitle: `${product.title} - Luxury Jewelry | Ohh Glam`,
+      seoDescription: `Discover our exquisite ${product.title.toLowerCase()}. Handcrafted with premium materials.`
+    }
+  };
+
+  res.json({
+    success: true,
+    data: review
+  });
+});
+
+app.post('/api/v1/reviews/:id', (req, res) => {
+  const { id } = req.params;
+  const { status, feedback, reviewer } = req.body;
+
+  // Update product status in our in-memory store
+  const product = realProducts.find(p => p.id === id.replace('review-', ''));
+  if (product) {
+    if (status === 'approved') {
+      product.optimizationStatus = 'completed';
+      product.lastOptimized = new Date().toISOString();
+      product.seoTitle = `${product.title} - Luxury Jewelry | Ohh Glam`;
+      product.seoDescription = `Discover our exquisite ${product.title.toLowerCase()}. Handcrafted with premium materials.`;
+      product.optimizedDescription = `${product.description || ''}\n\n✨ **Premium Quality Features:**\n• Expertly crafted with attention to detail`;
+    } else if (status === 'rejected') {
+      product.optimizationStatus = 'failed';
+    } else if (status === 'needs_revision') {
+      product.optimizationStatus = 'needs_review';
+    }
+  }
+
+  console.log(`📝 Review ${id} ${status} by ${reviewer}`);
+  if (feedback) {
+    console.log(`💬 Feedback: ${feedback}`);
+  }
+
+  res.json({
+    success: true,
+    data: {
+      id,
+      status,
+      reviewer,
+      reviewedAt: new Date().toISOString(),
+      feedback
+    },
+    message: `Review ${status} successfully`
+  });
+});
+
+app.get('/api/v1/reviews/pending', (req, res) => {
+  const pendingReviews = realProducts
+    .filter(p => p.optimizationStatus === 'pending' || p.optimizationStatus === 'needs_review')
+    .slice(0, 5)
+    .map(product => ({
+      id: `review-${product.id}`,
+      productId: product.id,
+      productName: product.title,
+      type: 'seo',
+      status: 'pending',
+      reviewer: 'AI Assistant',
+      submittedAt: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toISOString(),
+      priority: product.seoScore && product.seoScore < 70 ? 'high' : 'medium',
+      estimatedReviewTime: 8 + Math.floor(Math.random() * 12),
+      assignedTo: null
+    }));
+
+  res.json({
+    success: true,
+    data: pendingReviews
+  });
+});
+
+app.get('/api/v1/reviews/stats', (req, res) => {
+  const stats = {
+    total: realProducts.length,
+    pending: realProducts.filter(p => p.optimizationStatus === 'pending').length,
+    approved: realProducts.filter(p => p.optimizationStatus === 'completed').length,
+    rejected: realProducts.filter(p => p.optimizationStatus === 'failed').length,
+    needs_revision: realProducts.filter(p => p.optimizationStatus === 'needs_review').length,
+    avgQualityScore: 87,
+    avgReviewTime: 12,
+    backlogCount: realProducts.filter(p => p.optimizationStatus === 'pending').length
+  };
+
+  res.json({
+    success: true,
+    data: stats
+  });
+});
+
+app.post('/api/v1/quality-score', (req, res) => {
+  const { content } = req.body;
+
+  // Simple quality score calculation based on content metrics
+  const wordCount = content.split(/\s+/).length;
+  const charCount = content.length;
+  const hasKeywords = /quality|premium|luxury|handcrafted|exquisite/gi.test(content);
+  const hasStructure = /[•\-\*]/g.test(content);
+  const hasEmojis = /✨|🎁|💎|⭐/g.test(content);
+
+  let score = 60; // Base score
+
+  // Add points for various quality factors
+  if (wordCount > 50) score += 10;
+  if (wordCount > 100) score += 5;
+  if (charCount > 300) score += 5;
+  if (hasKeywords) score += 10;
+  if (hasStructure) score += 8;
+  if (hasEmojis) score += 2;
+
+  // Cap at 100
+  score = Math.min(score, 100);
+
+  const qualityScore = {
+    score,
+    breakdown: {
+      contentLength: Math.min(wordCount / 10, 15),
+      keywordUsage: hasKeywords ? 15 : 0,
+      structure: hasStructure ? 12 : 0,
+      readability: 10,
+      branding: hasEmojis ? 3 : 0
+    },
+    suggestions: score < 80 ? [
+      'Add more descriptive details about the product',
+      'Include specific materials and craftsmanship information',
+      'Add structured bullet points for better readability',
+      'Include brand voice and personality elements'
+    ] : []
+  };
+
+  res.json({
+    success: true,
+    data: qualityScore
+  });
+});
+
+app.post('/api/v1/content-diffs', (req, res) => {
+  const { original, optimized } = req.body;
+
+  // Simple diff detection (in a real implementation, you'd use a proper diff library)
+  const diffs = [];
+  const originalWords = original.split(/\s+/);
+  const optimizedWords = optimized.split(/\s+/);
+
+  // Find added words (simplified algorithm)
+  optimizedWords.forEach((word, index) => {
+    if (!originalWords.includes(word) && word.length > 3) {
+      diffs.push({
+        type: 'added',
+        text: word,
+        position: index,
+        originalText: ''
+      });
+    }
+  });
+
+  // Find modified words (very simplified)
+  originalWords.forEach((word, index) => {
+    const optimizedWord = optimizedWords[index];
+    if (optimizedWord && optimizedWord !== word && word.length > 3) {
+      diffs.push({
+        type: 'modified',
+        text: optimizedWord,
+        position: index,
+        originalText: word
+      });
+    }
+  });
+
+  res.json({
+    success: true,
+    data: diffs.slice(0, 10) // Limit to prevent overwhelming responses
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Test API server running on port ${PORT}`);

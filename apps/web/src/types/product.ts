@@ -10,6 +10,7 @@ export interface Product {
   status: 'active' | 'inactive' | 'draft' | 'processing';
   seoScore?: number;
   lastOptimized?: string;
+  updatedAt?: string;
   tags?: string[];
   seoTitle?: string;
   seoDescription?: string;
