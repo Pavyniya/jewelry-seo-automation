@@ -1,0 +1,15 @@
+{
+  "name": "@jewelry-seo/shared",
+  "version": "1.0.0",
+  "description": "Shared types and utilities for jewelry SEO automation",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

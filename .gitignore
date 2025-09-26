@@ -1,0 +1,88 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+*.log
+
+# Production builds
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Debug logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary folders
+tmp/
+temp/
+
+# Package manager
+pnpm-debug.log*
+
+# Build artifacts
+*.tsbuildinfo
+.cache/
+
+# Playwright test results
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Vitest coverage
+coverage/
+
+# AI/ML artifacts
+models/
+datasets/
+
+# Database
+*.db
+*.sqlite
+
+# Deployment
+.vercel
+.next
+netlify/
+
+# Monorepo specific
+apps/*/dist/
+packages/*/dist/

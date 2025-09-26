@@ -1,0 +1,51 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@/components': resolve(__dirname, './src/components'),
+      '@/pages': resolve(__dirname, './src/pages'),
+      '@/hooks': resolve(__dirname, './src/hooks'),
+      '@/services': resolve(__dirname, './src/services'),
+      '@/stores': resolve(__dirname, './src/stores'),
+      '@/types': resolve(__dirname, './src/types'),
+      '@/utils': resolve(__dirname, './src/utils'),
+      '@/styles': resolve(__dirname, './src/styles'),
+      '@jewelry-seo/shared': resolve(__dirname, '../../packages/shared/src'),
+    },
+  },
+  server: {
+    port: 4000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          ui: ['@headlessui/react', '@heroicons/react'],
+          state: ['zustand'],
+          query: ['@tanstack/react-query'],
+          utils: ['axios', 'zod', 'clsx'],
+        },
+      },
+    },
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+  },
+})

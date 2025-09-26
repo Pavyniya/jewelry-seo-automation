@@ -1,0 +1,31 @@
+{
+  "name": "jewelry-seo-automation",
+  "version": "1.0.0",
+  "description": "Automated SEO system for jewelry e-commerce",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --recursive run dev",
+    "build": "pnpm --recursive run build",
+    "test": "pnpm --recursive run test",
+    "lint": "pnpm --recursive run lint",
+    "type-check": "pnpm --recursive run type-check",
+    "clean": "pnpm --recursive run clean",
+    "install:all": "pnpm install && pnpm --recursive install"
+  },
+  "keywords": ["seo", "automation", "jewelry", "ecommerce", "shopify"],
+  "author": "Ohh Glam",
+  "license": "MIT",
+  "packageManager": "pnpm@8.15.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "backup_1758794373172_204afhdsv",
+  "filename": "jewelry_seo_backup_2025-09-25T09-59-33-172Z.sql.gz",
+  "size": 734,
+  "createdAt": "2025-09-25T09:59:33.175Z",
+  "tables": [
+    "products",
+    "optimization_versions",
+    "content_reviews",
+    "optimization_jobs"
+  ],
+  "recordCounts": {
+    "products": 0,
+    "optimization_versions": 0,
+    "content_reviews": 0,
+    "optimization_jobs": 0
+  },
+  "checksum": "b0ea50febb001a33a254131f87dd3c4f9db2f33b4b188f3dae22e861f5494551",
+  "compressionRatio": 3.8147138964577656
+}
