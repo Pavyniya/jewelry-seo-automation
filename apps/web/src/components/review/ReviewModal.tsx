@@ -3,7 +3,7 @@ import { ContentComparison } from './ContentComparison'
 import { ReviewActions } from './ReviewActions'
 import { useReviewStore } from '@/stores/reviewStore'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { X, Eye, Clock } from 'lucide-react'
 import { Product } from '@/types/product'
@@ -143,14 +143,14 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   const originalContent = {
     title: product.title,
-    description: product.description || '',
+    description: product.body_html || '',
     seoTitle: product.seoTitle,
     seoDescription: product.seoDescription
   }
 
   const optimizedContent = {
     title: `${product.title} | Fine Jewelry Collection`,
-    description: `${product.description || ''}\n\n✨ **Premium Quality Features:**\n• Expertly crafted with attention to detail\n• Perfect for special occasions and everyday elegance\n• Timeless design that complements any style\n• Backed by our quality guarantee\n\n🎁 **Perfect Gift Choice:**\n• Ideal for anniversaries, birthdays, and celebrations\n• Comes in elegant gift packaging\n• Includes certificate of authenticity\n• 30-day return policy for your peace of mind`,
+    description: `${product.body_html || ''}\n\n✨ **Premium Quality Features:**\n• Expertly crafted with attention to detail\n• Perfect for special occasions and everyday elegance\n• Timeless design that complements any style\n• Backed by our quality guarantee\n\n🎁 **Perfect Gift Choice:**\n• Ideal for anniversaries, birthdays, and celebrations\n• Comes in elegant gift packaging\n• Includes certificate of authenticity\n• 30-day return policy for your peace of mind`,
     seoTitle: `${product.title} - Luxury Jewelry | Ohh Glam`,
     seoDescription: `Discover our exquisite ${product.title.toLowerCase()}. Handcrafted with premium materials, perfect for making every moment special. Shop now with free shipping.`
   }
@@ -246,7 +246,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             ) : currentView === 'overview' ? (
               <div className="space-y-6">
                 {/* Content Summary */}
-                <Card title="Optimization Summary">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Optimization Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent>
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <h4 className="font-medium text-gray-900 mb-3">Original Content</h4>
@@ -283,10 +287,15 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                       </div>
                     </div>
                   </div>
+                  </CardContent>
                 </Card>
 
                 {/* Key Improvements */}
-                <Card title="Key Improvements">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Key Improvements</CardTitle>
+                  </CardHeader>
+                  <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
@@ -317,6 +326,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                       </div>
                     </div>
                   </div>
+                  </CardContent>
                 </Card>
               </div>
             ) : (

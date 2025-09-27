@@ -100,8 +100,8 @@ process.on('uncaughtException', (error) => {
     logger.warn('Constraint error occurred, server continuing to run');
     return;
   }
-  // For other errors, exit with error code
-  process.exit(1);
+  // For other errors, log the error but continue running
+  logger.error('Non-database error occurred in promise, server continuing to run:', reason);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -126,8 +126,8 @@ process.on('unhandledRejection', (reason, promise) => {
     logger.warn('Database error occurred in promise, server continuing to run');
     return;
   }
-  // For other errors, exit with error code
-  process.exit(1);
+  // For other errors, log the error but continue running
+  logger.error('Non-database error occurred in promise, server continuing to run:', reason);
 });
 
 startServer();

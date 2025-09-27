@@ -14,6 +14,7 @@ import SEOAnalytics from './pages/SEOAnalytics'
 import Settings from './pages/Settings'
 import { ContentReview } from './pages/ContentReview'
 import { AnalyticsDashboard } from './pages/analytics/Dashboard'
+import AutomationRules from './pages/automation/AutomationRules'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import './styles/index.css'
 
@@ -63,6 +64,7 @@ function App() {
                 <Route path="/content-review/:reviewId" element={<ContentReview />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/seo-analytics" element={<SEOAnalytics />} />
+                <Route path="/automation" element={<AutomationRules />} />
                 <Route path="/system-monitoring" element={<AnalyticsDashboard />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>

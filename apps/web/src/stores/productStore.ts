@@ -121,8 +121,100 @@ export const useProductStore = create<ProductState>((set, get) => ({
         set({ error: 'Failed to fetch products', loading: false });
       }
     } catch (err) {
-      set({ error: 'Error connecting to server', loading: false });
-      console.error('Error fetching products:', err);
+      console.warn('Failed to fetch products from API, using mock data:', err);
+
+      // Fallback to mock products data
+      const mockProducts: Product[] = [
+        {
+          id: '1',
+          title: 'Diamond Solitaire Ring',
+          body_html: '<p>Beautiful diamond solitaire ring perfect for engagements.</p>',
+          vendor: 'Ohh Glam',
+          product_type: 'Rings',
+          tags: ['diamond', 'engagement', 'ring'],
+          status: 'active',
+          seoScore: 85,
+          lastOptimized: '2024-01-15',
+          variants: [
+            {
+              id: '1',
+              price: '1299.99',
+              sku: 'DSR-001',
+              inventory_quantity: 15
+            }
+          ],
+          images: [
+            {
+              id: '1',
+              src: 'https://example.com/diamond-ring.jpg'
+            }
+          ],
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-15T10:00:00Z'
+        },
+        {
+          id: '2',
+          title: 'Pearl Elegance Necklace',
+          body_html: '<p>Elegant pearl necklace for special occasions.</p>',
+          vendor: 'Ohh Glam',
+          product_type: 'Necklaces',
+          tags: ['pearl', 'necklace', 'elegant'],
+          status: 'active',
+          seoScore: 92,
+          lastOptimized: '2024-01-14',
+          variants: [
+            {
+              id: '2',
+              price: '899.99',
+              sku: 'PEN-002',
+              inventory_quantity: 8
+            }
+          ],
+          images: [
+            {
+              id: '2',
+              src: 'https://example.com/pearl-necklace.jpg'
+            }
+          ],
+          created_at: '2024-01-02T00:00:00Z',
+          updated_at: '2024-01-14T15:30:00Z'
+        },
+        {
+          id: '3',
+          title: 'Gold Tennis Bracelet',
+          body_html: '<p>Classic gold tennis bracelet with secure clasp.</p>',
+          vendor: 'Ohh Glam',
+          product_type: 'Bracelets',
+          tags: ['gold', 'tennis', 'bracelet'],
+          status: 'active',
+          seoScore: 78,
+          lastOptimized: '2024-01-13',
+          variants: [
+            {
+              id: '3',
+              price: '1599.99',
+              sku: 'GTB-003',
+              inventory_quantity: 5
+            }
+          ],
+          images: [
+            {
+              id: '3',
+              src: 'https://example.com/gold-bracelet.jpg'
+            }
+          ],
+          created_at: '2024-01-03T00:00:00Z',
+          updated_at: '2024-01-13T12:00:00Z'
+        }
+      ];
+
+      set({
+        allProducts: mockProducts,
+        products: mockProducts.slice(0, 12),
+        totalPages: 1,
+        loading: false,
+        error: 'Using mock data - API unavailable'
+      });
     }
   },
   syncProducts: async () => {

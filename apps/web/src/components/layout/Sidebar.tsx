@@ -14,6 +14,7 @@ import {
   Sun,
   Moon,
   FileText,
+  Zap,
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -27,6 +28,7 @@ const navigation = [
   { name: 'Reviews', href: '/reviews', icon: MessageSquare },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'SEO Analytics', href: '/seo-analytics', icon: TrendingUp },
+  { name: 'Automation', href: '/automation', icon: Zap },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
