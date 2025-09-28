@@ -7,6 +7,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { database } from './utils/database';
 import { validateShopifyConfig } from './config/shopify';
 import { aiService } from './services/aiService';
+import { aiHealthMonitor } from './services/aiHealthMonitor';
 
 const app: Express = express();
 
@@ -61,10 +62,14 @@ async function startServer() {
       process.exit(1);
     }
 
-    // Skip database connection temporarily for troubleshooting
-    logger.warn('Skipping database connection to get server running');
-    // await database.connect();
+    // Connect to database
+    await database.connect();
+    // Skip AI service initialization for now to focus on fixing the main issues
     // await aiService.init();
+
+    // Start AI provider health monitoring
+    aiHealthMonitor.startMonitoring(30000); // Check every 30 seconds
+    logger.info('AI provider health monitoring started');
 
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
@@ -101,7 +106,7 @@ process.on('uncaughtException', (error) => {
     return;
   }
   // For other errors, log the error but continue running
-  logger.error('Non-database error occurred in promise, server continuing to run:', reason);
+  logger.error('Non-database error occurred, server continuing to run');
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -127,7 +132,7 @@ process.on('unhandledRejection', (reason, promise) => {
     return;
   }
   // For other errors, log the error but continue running
-  logger.error('Non-database error occurred in promise, server continuing to run:', reason);
+  logger.error('Non-database error occurred in promise, server continuing to run');
 });
 
 startServer();
