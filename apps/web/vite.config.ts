@@ -1,9 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { splitVendorChunkPlugin } from 'vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    splitVendorChunkPlugin(),
+    visualizer({
+      filename: 'bundle-analysis.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    })
+  ],
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
@@ -31,6 +42,7 @@ export default defineConfig({
     target: 'esnext',
     minify: 'esbuild',
     sourcemap: true,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -40,9 +52,18 @@ export default defineConfig({
           state: ['zustand'],
           query: ['@tanstack/react-query'],
           utils: ['axios', 'zod', 'clsx'],
+          charts: ['recharts', 'd3'],
+          forms: ['react-hook-form', '@hookform/resolvers'],
         },
+        assetFileNames: 'assets/[name].[hash][extname]',
+        chunkFileNames: 'chunks/[name].[hash].js',
+        entryFileNames: 'entries/[name].[hash].js',
       },
     },
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'recharts', 'zustand'],
+    exclude: ['fsevents']
   },
   test: {
     environment: 'jsdom',
