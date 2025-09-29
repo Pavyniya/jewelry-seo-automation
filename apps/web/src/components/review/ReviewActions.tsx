@@ -4,8 +4,11 @@ import { Card } from '@/components/ui/Card'
 import { Textarea } from '@/components/ui/Textarea'
 
 interface ReviewActionsProps {
+  // eslint-disable-next-line no-unused-vars
   onApprove: (_feedback?: string) => void
+  // eslint-disable-next-line no-unused-vars
   onReject: (_feedback: string) => void
+  // eslint-disable-next-line no-unused-vars
   onRequestRevision: (_feedback: string) => void
   loading?: boolean
   showFeedbackInput?: boolean

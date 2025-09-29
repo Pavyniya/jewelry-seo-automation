@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
 import { Search, TrendingUp, TrendingDown, Minus, Plus, ExternalLink } from 'lucide-react'
 import { useAnalyticsStore } from '@/stores/analyticsStore'
-import { KeywordData } from '@/types/analytics'
 
 interface KeywordTrackingProps {
   className?: string
@@ -28,7 +27,7 @@ const KeywordTracking: React.FC<KeywordTrackingProps> = ({ className }) => {
 
   useEffect(() => {
     refreshData()
-  }, [filters.dateRange])
+  }, [filters.dateRange, refreshData])
 
   const filteredKeywords = (keywords || []).filter(keyword =>
     keyword.keyword.toLowerCase().includes(searchTerm.toLowerCase())

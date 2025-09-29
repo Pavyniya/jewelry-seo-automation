@@ -58,7 +58,6 @@ const ToastColors = {
 }
 
 export const Toast: React.FC<ToastProps> = ({
-  id = generateId('toast'),
   type,
   title,
   description,
@@ -77,7 +76,7 @@ export const Toast: React.FC<ToastProps> = ({
   useEffect(() => {
     if (duration <= 0) return
 
-    let timer: NodeJS.Timeout
+    let timer: number
 
     if (!isPaused && timeLeft > 0) {
       timer = setTimeout(() => {
@@ -88,7 +87,7 @@ export const Toast: React.FC<ToastProps> = ({
     }
 
     return () => clearTimeout(timer)
-  }, [timeLeft, isPaused, duration])
+  }, [timeLeft, isPaused, duration, handleClose])
 
   useEffect(() => {
     // Announce to screen readers
@@ -213,7 +212,9 @@ export const Toast: React.FC<ToastProps> = ({
 
 // Toast provider and context
 interface ToastContextType {
+  // eslint-disable-next-line no-unused-vars
   showToast: (toast: Omit<ToastProps, 'id'>) => string
+  // eslint-disable-next-line no-unused-vars
   removeToast: (id: string) => void
   clearAllToasts: () => void
 }

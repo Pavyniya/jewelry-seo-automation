@@ -13,14 +13,21 @@ import {
 type RequestInit = globalThis.RequestInit
 
 export interface ReviewService {
+  // eslint-disable-next-line no-unused-vars
   getReviews(_filters?: ReviewFilters): Promise<ContentReview[]>
+  // eslint-disable-next-line no-unused-vars
   getReview(_id: string): Promise<ContentReview>
+  // eslint-disable-next-line no-unused-vars
   submitReview(_id: string, _submission: ReviewSubmission): Promise<void>
+  // eslint-disable-next-line no-unused-vars
   getOptimizationVersion(_id: string): Promise<OptimizationVersion>
   getPendingReviews(): Promise<ReviewQueueItem[]>
   getReviewStats(): Promise<ReviewStats>
+  // eslint-disable-next-line no-unused-vars
   getQualityScore(_content: string): Promise<QualityScore>
+  // eslint-disable-next-line no-unused-vars
   batchReview(_operation: BatchReviewOperation): Promise<void>
+  // eslint-disable-next-line no-unused-vars
   getContentDiffs(_original: string, _optimized: string): Promise<ContentDiff[]>
 }
 

@@ -4,7 +4,9 @@ import { cn } from '@/utils/cn'
 
 interface ContentEditorProps {
   value: string
+  // eslint-disable-next-line no-unused-vars
   onChange: (value: string) => void
+  // eslint-disable-next-line no-unused-vars
   onSave?: (value: string) => void
   onCancel?: () => void
   placeholder?: string

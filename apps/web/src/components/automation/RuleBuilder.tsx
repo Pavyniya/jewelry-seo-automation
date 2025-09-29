@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import { OptimizationRule } from 'packages/shared/src/types/automation';
 
 interface RuleBuilderProps {
+  // eslint-disable-next-line no-unused-vars
   onSave: (rule: OptimizationRule) => void;
-  templates: OptimizationRule[];
 }
 
-const RuleBuilder: React.FC<RuleBuilderProps> = ({ onSave, templates }) => {
+const RuleBuilder: React.FC<RuleBuilderProps> = ({ onSave }) => {
   const [rule, setRule] = useState<Partial<OptimizationRule>>({});
 
   const handleSave = () => {

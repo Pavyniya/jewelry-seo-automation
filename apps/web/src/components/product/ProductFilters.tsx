@@ -4,13 +4,17 @@ import { Search, Filter, ArrowUpDown } from 'lucide-react';
 
 interface ProductFiltersProps {
   searchTerm: string;
+  // eslint-disable-next-line no-unused-vars
   setSearchTerm: (term: string) => void;
   selectedCategory: string;
+  // eslint-disable-next-line no-unused-vars
   setSelectedCategory: (category: string) => void;
   categories: string[];
   sortBy: 'title' | 'price' | 'status' | 'lastOptimized';
   sortOrder: 'asc' | 'desc';
+  // eslint-disable-next-line no-unused-vars
   setSortBy: (sortBy: 'title' | 'price' | 'status' | 'lastOptimized') => void;
+  // eslint-disable-next-line no-unused-vars
   setSortOrder: (sortOrder: 'asc' | 'desc') => void;
 }
 

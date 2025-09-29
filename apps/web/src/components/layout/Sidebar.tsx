@@ -13,7 +13,6 @@ import {
   X,
   Sun,
   Moon,
-  FileText,
   Zap,
   Cpu,
   Target,

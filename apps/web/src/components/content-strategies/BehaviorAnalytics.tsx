@@ -11,7 +11,7 @@ const BehaviorAnalytics: React.FC = () => {
   const [behaviorData, setBehaviorData] = useState<CustomerBehavior | null>(null);
   const [patterns, setPatterns] = useState<BehaviorPattern[]>([]);
   const [selectedTimeframe, setSelectedTimeframe] = useState<string>('7d');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory] = useState<string>('all');
 
   const fetchBehaviorData = async () => {
     setLoading(true);
@@ -32,10 +32,10 @@ const BehaviorAnalytics: React.FC = () => {
 
   useEffect(() => {
     fetchBehaviorData();
-  }, [selectedTimeframe, selectedCategory]);
+  }, [selectedTimeframe, selectedCategory, fetchBehaviorData]);
 
   const getInteractionIcon = (type: InteractionType): string => {
-    const icons: { [key in InteractionType]: string } = {
+    const icons: Record<InteractionType, string> = {
       'view': '👁️',
       'click': '🖱️',
       'add_to_cart': '🛒',

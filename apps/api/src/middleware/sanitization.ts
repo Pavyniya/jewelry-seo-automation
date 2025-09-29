@@ -9,7 +9,7 @@ export const sanitizeString = (input: string): string => {
     .trim()
     .replace(/[<>]/g, '') // Remove potential HTML tags
     .replace(/[{}]/g, '') // Remove potential template literals
-    .replace(/[\[\]]/g, '') // Remove potential array access patterns
+    .replace(/[[\]]/g, '') // Remove potential array access patterns
     .replace(/["']/g, '') // Remove quotes to prevent injection
     .substring(0, 10000); // Limit length
 };

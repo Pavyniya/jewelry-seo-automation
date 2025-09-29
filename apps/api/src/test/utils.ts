@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { jest, expect } from '@jest/globals';
 
 // Database test utilities
 export const testDatabase = {

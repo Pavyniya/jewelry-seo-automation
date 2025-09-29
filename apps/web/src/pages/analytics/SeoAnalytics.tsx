@@ -18,7 +18,6 @@ const SeoAnalytics: React.FC = () => {
     trendData,
     contentGapData,
     qualityScores,
-    keywords,
     loading,
     refreshData
   } = useAnalyticsStore();

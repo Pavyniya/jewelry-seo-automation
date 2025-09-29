@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ContentStrategyResponse, CustomerBehavior, ContentPersonalization } from '@jewelry-seo/shared/types/contentStrategy';
+import { ContentStrategyResponse, CustomerBehavior } from '@jewelry-seo/shared/types/contentStrategy';
 import { personalizationEngine } from '../../services/contentStrategiesService';
 
 interface PersonalizationDashboardProps {
@@ -107,7 +107,7 @@ const PersonalizationDashboard: React.FC<PersonalizationDashboardProps> = ({ pro
     if (testProductId) {
       fetchPersonalizedContent();
     }
-  }, []);
+  }, [fetchPersonalizedContent, testProductId]);
 
   const getSegmentColor = (segment: string): string => {
     const colors: { [key: string]: string } = {

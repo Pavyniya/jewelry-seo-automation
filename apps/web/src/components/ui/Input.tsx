@@ -4,8 +4,11 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search'
   placeholder?: string
   value?: string | number
+  // eslint-disable-next-line no-unused-vars
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  // eslint-disable-next-line no-unused-vars
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  // eslint-disable-next-line no-unused-vars
   onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   className?: string
   id?: string

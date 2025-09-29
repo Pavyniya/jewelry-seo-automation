@@ -4,7 +4,9 @@ import { OptimizationRule } from 'packages/shared/src/types/automation';
 
 interface RuleManagementProps {
   rules: OptimizationRule[];
+  // eslint-disable-next-line no-unused-vars
   onDelete: (ruleId: string) => void;
+  // eslint-disable-next-line no-unused-vars
   onToggle: (ruleId: string) => void;
 }
 

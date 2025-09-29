@@ -4,7 +4,7 @@ import { ChevronRight, Home } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { generateId } from '@/utils/accessibility'
 
-interface BreadcrumbItem {
+interface BreadcrumbItemProps {
   label: string
   path?: string
   icon?: React.ReactNode
@@ -30,9 +30,7 @@ interface BreadcrumbNavProps extends BreadcrumbProps {
    * Custom mapping for route path to breadcrumb label
    */
   routeMap?: Record<string, string>
-  /**
-   * Function to generate dynamic breadcrumb labels from route params
-   */
+  // eslint-disable-next-line no-unused-vars
   dynamicLabelGenerator?: (pathname: string, params: Record<string, string>) => string
 }
 
@@ -162,7 +160,7 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
       currentPath += `/${segment}`
 
       // Check if this segment represents a dynamic route (contains parameters)
-      const isDynamic = segment.startsWith(':') || /\[.*\]/.test(segment)
+      const isDynamic = segment.startsWith(':') || /[[.*]]/.test(segment)
 
       let label = routeMap[currentPath] || segment
 
@@ -208,6 +206,7 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
 // Hook for generating breadcrumbs
 export function useBreadcrumb(options?: {
   routeMap?: Record<string, string>
+  // eslint-disable-next-line no-unused-vars
   dynamicLabelGenerator?: (pathname: string, params: Record<string, string>) => string
 }) {
   const location = useLocation()
@@ -223,7 +222,7 @@ export function useBreadcrumb(options?: {
     pathSegments.forEach((segment, index) => {
       currentPath += `/${segment}`
 
-      const isDynamic = segment.startsWith(':') || /\[.*\]/.test(segment)
+      const isDynamic = segment.startsWith(':') || /[[.*]]/.test(segment)
       let label = routeMap[currentPath] || segment
 
       if (isDynamic && dynamicLabelGenerator) {
@@ -264,7 +263,7 @@ export function useBreadcrumb(options?: {
 }
 
 // Individual breadcrumb item component
-export const BreadcrumbItem: React.FC<BreadcrumbItem> = ({
+export const BreadcrumbItem: React.FC<BreadcrumbItemProps> = ({
   label,
   path,
   icon,

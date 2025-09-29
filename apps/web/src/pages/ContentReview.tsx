@@ -45,7 +45,7 @@ export const ContentReview: React.FC<ContentReviewProps> = ({ reviewId }) => {
 
   useEffect(() => {
     if (currentVersion) {
-      const diffs = computeTextDiff(
+      computeTextDiff(
         currentVersion.originalDescription,
         currentVersion.optimizedDescription
       )

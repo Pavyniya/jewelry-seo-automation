@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   Save,
   Eye,
-  Settings,
   Tag,
   FileText,
   Search

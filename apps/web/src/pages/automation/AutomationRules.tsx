@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAutomationStore } from '@/stores/automationStore'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Card, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { RuleBuilder } from '@/components/automation/RuleBuilder'
 import { RuleTemplates } from '@/components/automation/RuleTemplates'
@@ -11,9 +11,7 @@ import { RulePerformance } from '@/components/automation/RulePerformance'
 import { ApprovalQueue } from '@/components/automation/ApprovalQueue'
 import {
   OptimizationRule,
-  RuleBuilderState,
-  Workflow,
-  AutomationFilters
+  RuleBuilderState
 } from '@jewelry-seo/shared/types/automation'
 import {
   Plus,
@@ -27,7 +25,6 @@ import {
   CheckSquare,
   Zap,
   Search,
-  Filter,
   RefreshCw
 } from 'lucide-react'
 
@@ -41,10 +38,6 @@ const AutomationRules: React.FC = () => {
     error,
     filters,
     setFilters,
-    selectedRule,
-    setSelectedRule,
-    isBuilderOpen,
-    setIsBuilderOpen,
     setBuilderState,
     addRule,
     updateRule,
@@ -52,8 +45,6 @@ const AutomationRules: React.FC = () => {
     executeRule,
     refreshData,
     fetchRules,
-    fetchTemplates,
-    fetchApprovals,
     fetchWorkflows
   } = useAutomationStore()
 
@@ -65,7 +56,7 @@ const AutomationRules: React.FC = () => {
 
   useEffect(() => {
     refreshData()
-  }, [])
+  }, [refreshData])
 
   useEffect(() => {
     // Load rules when switching to workflows tab to ensure they're available for workflow designer
@@ -100,8 +91,8 @@ const AutomationRules: React.FC = () => {
           throw new Error('Failed to create rule')
         }
 
-        const result = await response.json()
-        addRule(result.data)
+        const newRule = await response.json()
+        addRule(newRule.data)
       }
 
       setShowBuilder(false)
@@ -743,17 +734,11 @@ const AutomationRules: React.FC = () => {
           onApprove={(id) => {
             console.log('Approved:', id)
             // Mock approval - update status to approved
-            const updatedApprovals = pendingApprovals.map(a =>
-              a.id === id ? { ...a, status: 'approved' } : a
-            )
             // This would need a proper store update function
           }}
           onReject={(id, reason) => {
             console.log('Rejected:', id, reason)
             // Mock rejection - update status to rejected
-            const updatedApprovals = pendingApprovals.map(a =>
-              a.id === id ? { ...a, status: 'rejected', rejectionReason: reason } : a
-            )
             // This would need a proper store update function
           }}
         />

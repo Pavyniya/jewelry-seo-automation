@@ -4,6 +4,7 @@ type Theme = 'light' | 'dark'
 
 interface ThemeContextType {
   theme: Theme
+  // eslint-disable-next-line no-unused-vars
   setTheme: (theme: Theme) => void
   toggleTheme: () => void
 }

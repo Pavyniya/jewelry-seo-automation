@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react'
 
 interface CheckboxProps {
   checked?: boolean
+  // eslint-disable-next-line no-unused-vars
   onCheckedChange?: (checked: boolean) => void
   disabled?: boolean
   className?: string

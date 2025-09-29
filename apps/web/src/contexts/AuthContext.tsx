@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useEffect, ReactNode } from 'react'
-import { useAuthStore } from '@/stores/authStore'
+import React, { createContext, useContext, ReactNode } from 'react'
 
 interface User {
   id: string
@@ -17,8 +16,10 @@ interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
+  // eslint-disable-next-line no-unused-vars
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  // eslint-disable-next-line no-unused-vars
   register: (userData: {
     email: string
     password: string
@@ -26,6 +27,7 @@ interface AuthContextType {
     companyName?: string
   }) => Promise<void>
   checkAuth: () => Promise<void>
+  // eslint-disable-next-line no-unused-vars
   updateProfile: (userData: Partial<User>) => Promise<void>
   clearError: () => void
 }
@@ -51,21 +53,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: true,
     isLoading: false,
     error: null,
-    login: async (email: string, password: string) => {
+    login: async (_email: string, _password: string) => {
       // Mock login - always succeed
-      console.log('Mock login for:', email)
+      console.log('Mock login for:', _email)
     },
     logout: async () => {
       console.log('Mock logout')
     },
-    register: async (userData: any) => {
-      console.log('Mock register:', userData)
+    register: async (_userData: any) => {
+      console.log('Mock register:', _userData)
     },
     checkAuth: async () => {
       console.log('Mock checkAuth')
     },
-    updateProfile: async (userData: any) => {
-      console.log('Mock updateProfile:', userData)
+    updateProfile: async (_userData: any) => {
+      console.log('Mock updateProfile:', _userData)
     },
     clearError: () => {
       console.log('Mock clearError')

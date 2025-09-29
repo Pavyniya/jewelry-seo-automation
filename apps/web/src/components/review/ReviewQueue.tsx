@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ReviewQueueItem, ReviewFilters } from '@jewelry-seo/shared/types/review'
+import { ReviewQueueItem } from '@jewelry-seo/shared/types/review'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns'
 
 interface ReviewQueueProps {
   items: ReviewQueueItem[]
+  // eslint-disable-next-line no-unused-vars
   onReview: (itemId: string) => void
   loading?: boolean
   className?: string
@@ -55,9 +56,10 @@ export const ReviewQueue: React.FC<ReviewQueueProps> = ({
     // Sort items
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'priority':
+        case 'priority': {
           const priorityOrder = { high: 3, medium: 2, low: 1 }
           return priorityOrder[b.priority as keyof typeof priorityOrder] - priorityOrder[a.priority as keyof typeof priorityOrder]
+        }
         case 'submittedAt':
           return new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
         case 'estimatedTime':

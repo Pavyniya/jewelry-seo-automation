@@ -13,7 +13,7 @@ export class AIHealthMonitor extends EventEmitter {
   private circuitBreakers: Map<string, CircuitBreakerState> = new Map();
   private providers: Map<string, AiProviderConfig> = new Map();
   private failoverConfigs: Map<string, FailoverConfig> = new Map();
-  private healthCheckInterval: NodeJS.Timeout | null = null;
+  private healthCheckInterval: any | null = null;
   private isMonitoring = false;
 
   constructor() {

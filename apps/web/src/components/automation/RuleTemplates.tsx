@@ -4,7 +4,9 @@ import { OptimizationRule } from 'packages/shared/src/types/automation';
 
 interface RuleTemplatesProps {
   templates: OptimizationRule[];
+  // eslint-disable-next-line no-unused-vars
   onSelect: (template: OptimizationRule) => void;
+  // eslint-disable-next-line no-unused-vars
   onCreateRuleFromTemplate: (templateId: string) => void;
 }
 

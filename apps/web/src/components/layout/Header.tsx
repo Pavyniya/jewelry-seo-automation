@@ -2,7 +2,6 @@ import React, { Fragment } from 'react'
 import { Menu, Bell, Search, Settings, LogOut, User } from 'lucide-react'
 import { Popover, Transition } from '@headlessui/react'
 import { useAuthStore } from '@/stores/authStore'
-import { cn } from '@/utils/cn'
 
 interface HeaderProps {
   title?: string
@@ -11,14 +10,6 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title = 'Dashboard', onMenuClick }) => {
   const { user, logout } = useAuthStore()
-
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', current: true },
-    { name: 'Products', href: '/products', current: false },
-    { name: 'Reviews', href: '/reviews', current: false },
-    { name: 'Analytics', href: '/analytics', current: false },
-    { name: 'Settings', href: '/settings', current: false },
-  ]
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">

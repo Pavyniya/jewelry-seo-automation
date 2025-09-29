@@ -21,7 +21,7 @@ export const AiProviderDashboard: React.FC = () => {
 
   useEffect(() => {
     refreshData();
-  }, []);
+  }, [refreshData]);
 
   const handleOptimize = async () => {
     try {

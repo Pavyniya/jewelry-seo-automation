@@ -11,6 +11,7 @@ interface ContentEditorProps {
     seoTitle?: string
     seoDescription?: string
   }
+  // eslint-disable-next-line no-unused-vars
   onSave: (_content: {
     title: string
     description: string

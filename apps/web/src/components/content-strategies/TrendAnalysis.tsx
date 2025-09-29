@@ -12,7 +12,7 @@ const TrendAnalysisComponent: React.FC = () => {
   const [seasonalTrends, setSeasonalTrends] = useState<SeasonalTrend[]>([]);
   const [forecast, setForecast] = useState<TrendAnalysis[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedTimeframe, setSelectedTimeframe] = useState<string>('current');
+  const [selectedTimeframe] = useState<string>('current');
 
   const fetchTrendData = async () => {
     setLoading(true);
@@ -35,10 +35,10 @@ const TrendAnalysisComponent: React.FC = () => {
 
   useEffect(() => {
     fetchTrendData();
-  }, [selectedCategory, selectedTimeframe]);
+  }, [selectedCategory, selectedTimeframe, fetchTrendData]);
 
   const getTrendIcon = (category: TrendCategory): string => {
-    const icons: { [key in TrendCategory]: string } = {
+    const icons: Record<TrendCategory, string> = {
       'style': '👗',
       'material': '💎',
       'color': '🎨',

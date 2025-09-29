@@ -65,7 +65,7 @@ export const NetworkErrorBoundary: React.FC<NetworkErrorBoundaryProps> = ({
         }))
 
         // Trigger reconnect callback if we just came back online
-        if (!prev.isServerReachable && onReconnect) {
+        if (!networkStatus.isServerReachable && onReconnect) {
           onReconnect()
         }
       } else {
@@ -115,7 +115,7 @@ export const NetworkErrorBoundary: React.FC<NetworkErrorBoundaryProps> = ({
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
-  }, [])
+  }, [checkNetworkStatus])
 
   // Set up periodic health checks
   useEffect(() => {
@@ -123,12 +123,11 @@ export const NetworkErrorBoundary: React.FC<NetworkErrorBoundaryProps> = ({
 
     const interval = setInterval(checkNetworkStatus, pingInterval)
     return () => clearInterval(interval)
-  }, [networkStatus.isOnline, pingInterval, pingEndpoint])
+  }, [networkStatus.isOnline, pingInterval, pingEndpoint, checkNetworkStatus])
 
-  // Initial check
   useEffect(() => {
     checkNetworkStatus()
-  }, [])
+  }, [checkNetworkStatus])
 
   // If network is healthy, render children
   if (networkStatus.isOnline && networkStatus.isServerReachable) {
@@ -286,7 +285,7 @@ export function useNetworkStatus(
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
-  }, [])
+  }, [checkNetworkStatus])
 
   useEffect(() => {
     const { pingInterval = 30000 } = options
@@ -294,11 +293,11 @@ export function useNetworkStatus(
 
     const interval = setInterval(checkNetworkStatus, pingInterval)
     return () => clearInterval(interval)
-  }, [networkStatus.isOnline, options.pingInterval])
+  }, [networkStatus.isOnline, options, checkNetworkStatus])
 
   useEffect(() => {
     checkNetworkStatus()
-  }, [])
+  }, [checkNetworkStatus])
 
   return { ...networkStatus, checkNetworkStatus }
 }

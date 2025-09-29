@@ -17,6 +17,7 @@ interface ContentComparisonProps {
     seoDescription: string
   }
   diffs?: ContentDiff[]
+  // eslint-disable-next-line no-unused-vars
   onEdit?: (content: any) => void
   loading?: boolean
 }

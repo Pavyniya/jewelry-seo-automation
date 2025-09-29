@@ -1,19 +1,13 @@
 import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Badge } from '@/components/ui/Badge'
 import {
-  Settings,
   Download,
   Upload,
   RotateCcw,
-  Save,
   Eye,
   LayoutGrid,
   List,
-  Calendar,
-  Clock,
   Bell,
   Monitor,
   Palette
@@ -48,19 +42,10 @@ const Tab: React.FC<TabProps> = ({ active, onClick, children, icon }) => (
 const UserPreferencesContent: React.FC = () => {
   const {
     products,
-    tables,
-    notifications,
-    dashboard,
     display,
     updateProductPreferences,
-    updateTablePreferences,
-    updateNotificationPreferences,
-    updateDashboardPreferences,
     updateDisplayPreferences,
     resetProductPreferences,
-    resetTablePreferences,
-    resetNotificationPreferences,
-    resetDashboardPreferences,
     resetDisplayPreferences,
     exportPreferences,
     importPreferences,

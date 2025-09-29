@@ -24,33 +24,6 @@ import { ContentStrategiesPage } from './pages/content-strategies/ContentStrateg
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import './styles/index.css'
 
-// Test CSS function
-function TestCSS() {
-  return (
-    <div style={{
-      padding: '20px',
-      backgroundColor: '#f3f4f6',
-      margin: '20px',
-      borderRadius: '8px',
-      border: '1px solid #d1d5db'
-    }}>
-      <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>CSS Test Component</h2>
-      <p style={{ color: '#6b7280' }}>If you can see this styled box, CSS is working!</p>
-      <button style={{
-        backgroundColor: '#3b82f6',
-        color: 'white',
-        padding: '8px 16px',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        marginTop: '10px'
-      }}>
-        Test Button
-      </button>
-    </div>
-  )
-}
-
 function App() {
   return (
     <ThemeProvider>

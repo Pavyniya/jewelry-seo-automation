@@ -14,7 +14,6 @@ const AutomationRules: React.FC = () => {
     performance,
     pendingApprovals,
     createRule,
-    executeRule,
     deleteRule,
     toggleRule
   } = useAutomationStore();
@@ -39,7 +38,7 @@ const AutomationRules: React.FC = () => {
           />
         </div>
         <div>
-          <RuleTemplates templates={templates} onSelect={(template) => console.log(template)} />
+          <RuleTemplates templates={templates} onSelect={(_template) => console.log(_template)} />
           <RulePerformance performance={performance} />
         </div>
       </div>
@@ -48,8 +47,8 @@ const AutomationRules: React.FC = () => {
 
       <ApprovalQueue
         approvals={pendingApprovals}
-        onApprove={(id) => { /* Handle approval */ }}
-        onReject={(id, reason) => { /* Handle rejection */ }}
+        onApprove={(_id) => { /* Handle approval */ }}
+        onReject={(_id, _reason) => { /* Handle rejection */ }}
       />
     </div>
   );

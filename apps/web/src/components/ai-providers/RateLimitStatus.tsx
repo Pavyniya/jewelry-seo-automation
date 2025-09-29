@@ -66,7 +66,6 @@ export const RateLimitStatusComponent: React.FC<RateLimitStatusProps> = ({ rateL
           {rateLimits.map((limit) => {
             const usagePercentage = (limit.currentUsage / limit.limit) * 100;
             const remaining = limit.limit - limit.currentUsage;
-            const remainingPercentage = 100 - usagePercentage;
 
             return (
               <div key={limit.providerId} className="border border-gray-200 rounded-lg p-4">

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge'
 
 interface BatchReviewProps {
   reviews: ContentReview[]
+  // eslint-disable-next-line no-unused-vars
   onBatchAction: (reviewIds: string[], action: 'approve' | 'reject' | 'needs_revision', feedback?: string) => void
   loading?: boolean
   className?: string

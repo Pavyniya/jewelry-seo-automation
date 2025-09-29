@@ -3,7 +3,9 @@ import React from 'react';
 
 interface ApprovalQueueProps {
   approvals: any[];
+  // eslint-disable-next-line no-unused-vars
   onApprove: (id: string) => void;
+  // eslint-disable-next-line no-unused-vars
   onReject: (id: string, reason: string) => void;
 }
 

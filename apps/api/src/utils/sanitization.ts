@@ -19,6 +19,7 @@ export function sanitizeText(text: string): string {
 
   return text
     .replace(/[<>]/g, '') // Remove angle brackets
+    // eslint-disable-next-line no-control-regex
     .replace(/[\x00-\x1F\x7F]/g, '') // Remove control characters
     .replace(/[\u2028\u2029]/g, '') // Remove line/paragraph separators
     .trim();

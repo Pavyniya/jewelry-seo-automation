@@ -20,11 +20,10 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   product
 }) => {
   const [currentView, setCurrentView] = useState<'overview' | 'comparison'>('overview')
-  const [feedback, setFeedback] = useState('')
   const [loading, setLoading] = useState(false)
+  const [feedback, setFeedback] = useState('')
 
   const {
-    currentReview,
     contentDiffs,
     qualityScore,
     submitReview,
@@ -32,21 +31,6 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
     getContentDiffs,
     clearError
   } = useReviewStore()
-
-  useEffect(() => {
-    if (isOpen && product) {
-      // Simulate generating optimized content for review
-      generateOptimizedContent()
-    }
-  }, [isOpen, product])
-
-  useEffect(() => {
-    if (!isOpen) {
-      setFeedback('')
-      setCurrentView('overview')
-      clearError()
-    }
-  }, [isOpen, clearError])
 
   const generateOptimizedContent = async () => {
     if (!product) return
@@ -76,6 +60,21 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (isOpen && product) {
+      // Simulate generating optimized content for review
+      generateOptimizedContent()
+    }
+  }, [isOpen, product])
+
+  useEffect(() => {
+    if (!isOpen) {
+      setFeedback('')
+      setCurrentView('overview')
+      clearError()
+    }
+  }, [isOpen, clearError])
 
   const handleApprove = async (reviewFeedback?: string) => {
     if (!product) return

@@ -26,13 +26,11 @@ const ProductDetailContent: React.FC = () => {
     products,
     loading,
     error,
-    selectedProducts,
-    setSelectedProducts,
     fetchProducts,
     optimizeProduct,
   } = useProductStore()
 
-  const [optimizationHistory, setOptimizationHistory] = useState([
+  const [optimizationHistory] = useState([
     {
       id: '1',
       date: '2025-09-25',

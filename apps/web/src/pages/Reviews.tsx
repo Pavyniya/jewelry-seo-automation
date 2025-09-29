@@ -109,15 +109,6 @@ const Reviews: React.FC = () => {
     }
   }
 
-  const getTypeLabel = (type: Review['type']) => {
-    switch (type) {
-      case 'content': return 'Content'
-      case 'seo': return 'SEO'
-      case 'compliance': return 'Compliance'
-      default: return type
-    }
-  }
-
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-600'
     if (score >= 80) return 'text-yellow-600'

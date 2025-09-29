@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   ABTest,
-  TestVariant,
   TestResult,
   StatisticalSignificance
 } from '@jewelry-seo/shared/types/contentStrategy';

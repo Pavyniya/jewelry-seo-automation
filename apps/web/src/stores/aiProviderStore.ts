@@ -44,13 +44,20 @@ interface AiProviderState {
   fetchProviderPerformance: () => Promise<void>;
   fetchRateLimits: () => Promise<void>;
   fetchCostAnalysis: () => Promise<void>;
+  // eslint-disable-next-line no-unused-vars
   selectProvider: (contentType: string, estimatedTokens: number, requirements?: any) => Promise<ProviderSelectionResponse>;
+  // eslint-disable-next-line no-unused-vars
   testProvider: (providerId: string, testType?: string, payload?: any) => Promise<ProviderTestResponse>;
+  // eslint-disable-next-line no-unused-vars
   triggerFailover: (providerId: string, targetProviderId?: string) => Promise<void>;
+  // eslint-disable-next-line no-unused-vars
   optimizeProviders: (strategy?: OptimizationStrategy) => Promise<void>;
   fetchAvailableProviders: () => Promise<void>;
+  // eslint-disable-next-line no-unused-vars
   recordRequestResult: (providerId: string, success: boolean, responseTime: number, actualCost: number) => Promise<void>;
+  // eslint-disable-next-line no-unused-vars
   setLoading: (key: 'health' | 'performance' | 'rateLimits' | 'costs' | 'test' | 'optimization', value: boolean) => void;
+  // eslint-disable-next-line no-unused-vars
   setError: (key: 'health' | 'performance' | 'rateLimits' | 'costs' | 'test' | 'optimization', error: string | null) => void;
   clearErrors: () => void;
   refreshData: () => Promise<void>;

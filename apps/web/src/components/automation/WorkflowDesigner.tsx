@@ -5,13 +5,12 @@ import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import {
-  Workflow,
-  OptimizationRule,
-  RuleSchedule
+  Workflow
 } from '@jewelry-seo/shared/types/automation'
-import { Plus, Trash2, Play, Pause, Settings, Save } from 'lucide-react'
+import { Play, Save } from 'lucide-react'
 
 interface WorkflowDesignerProps {
+  // eslint-disable-next-line no-unused-vars
   onSave: (workflow: Partial<Workflow>) => void
   onCancel: () => void
   initialWorkflow?: Partial<Workflow>
@@ -32,7 +31,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
   onCancel,
   initialWorkflow
 }) => {
-  const { rules, workflows, addWorkflow, fetchRules, loading } = useAutomationStore()
+  const { rules, fetchRules, loading } = useAutomationStore()
 
   useEffect(() => {
     // Load rules when component mounts

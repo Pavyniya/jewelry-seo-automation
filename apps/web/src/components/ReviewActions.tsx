@@ -6,6 +6,7 @@ import { cn } from '@/utils/cn'
 interface ReviewActionsProps {
   reviewId: string
   currentStatus: ReviewStatus
+  // eslint-disable-next-line no-unused-vars
   onSubmit: (reviewId: string, action: 'approved' | 'rejected' | 'needs_revision', feedback?: string) => Promise<void>
   loading?: boolean
   className?: string

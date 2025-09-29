@@ -13,7 +13,6 @@ const JourneyOptimizer: React.FC = () => {
   const [funnel, setFunnel] = useState<JourneyFunnel | null>(null);
   const [stageContent, setStageContent] = useState<JourneyStageContent[]>([]);
   const [selectedJourney, setSelectedJourney] = useState<string>('');
-  const [selectedStage, setSelectedStage] = useState<string>('');
 
   const fetchJourneyData = async () => {
     setLoading(true);
@@ -51,7 +50,7 @@ const JourneyOptimizer: React.FC = () => {
   }, []);
 
   const getStageColor = (stage: JourneyStage): string => {
-    const colors: { [key in JourneyStage]: string } = {
+    const colors: Record<JourneyStage, string> = {
       'awareness': 'bg-blue-100 text-blue-800',
       'consideration': 'bg-purple-100 text-purple-800',
       'decision': 'bg-orange-100 text-orange-800',
@@ -63,7 +62,7 @@ const JourneyOptimizer: React.FC = () => {
   };
 
   const getStageIcon = (stage: JourneyStage): string => {
-    const icons: { [key in JourneyStage]: string } = {
+    const icons: Record<JourneyStage, string> = {
       'awareness': '👁️',
       'consideration': '🤔',
       'decision': '⚖️',

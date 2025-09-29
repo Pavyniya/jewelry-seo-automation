@@ -11,7 +11,7 @@ interface AsyncErrorBoundaryState {
 
 interface AsyncErrorBoundaryProps {
   children: ReactNode
-  fallback?: ReactNode
+  // eslint-disable-next-line no-unused-vars
   onError?: (error: Error, errorType: AsyncErrorBoundaryState['errorType']) => void
   onRetry?: () => Promise<void> | void
   maxRetries?: number
@@ -20,7 +20,7 @@ interface AsyncErrorBoundaryProps {
 
 export class AsyncErrorBoundary extends Component<AsyncErrorBoundaryProps, AsyncErrorBoundaryState> {
   private retryCount = 0
-  private timeoutId: NodeJS.Timeout | null = null
+  private timeoutId: number | null = null
 
   constructor(props: AsyncErrorBoundaryProps) {
     super(props)
@@ -152,7 +152,7 @@ export class AsyncErrorBoundary extends Component<AsyncErrorBoundaryProps, Async
           {getErrorMessage()}
         </p>
 
-        {process.env.NODE_ENV === 'development' && error && (
+        {error && (
           <details className="text-left text-xs text-gray-500 dark:text-gray-400 mb-4">
             <summary className="cursor-pointer mb-2 font-medium">Error details</summary>
             <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded overflow-auto max-h-32">
@@ -205,6 +205,7 @@ export function useAsyncErrorHandler() {
   const executeAsync = React.useCallback(async <T,>(
     operation: () => Promise<T>,
     options?: {
+      // eslint-disable-next-line no-unused-vars
       onError?: (error: Error, errorType: AsyncErrorBoundaryState['errorType']) => void
       timeout?: number
     }

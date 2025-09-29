@@ -12,6 +12,7 @@ interface ErrorBoundaryState {
 interface ErrorBoundaryProps {
   children: ReactNode
   fallback?: ReactNode
+  // eslint-disable-next-line no-unused-vars
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void
   level?: 'page' | 'section' | 'component'
 }
@@ -93,7 +94,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           </p>
         )}
 
-        {process.env.NODE_ENV === 'development' && errorInfo && (
+        {errorInfo && (
           <details className="text-left text-xs text-gray-500 dark:text-gray-400 mb-4">
             <summary className="cursor-pointer mb-2 font-medium">Error details</summary>
             <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded overflow-auto max-h-32">
