@@ -1,0 +1,103 @@
+# Gitleaks configuration for Jewelry SEO Automation
+
+title = "Gitleaks Configuration"
+
+[[rules]]
+description = "AWS Access Key ID"
+regex = '''(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
+tags = ["key", "AWS"]
+
+[[rules]]
+description = "AWS Secret Access Key"
+regex = '''(?i)aws(.{0,20})?(?-i)[sS]ecret(.{0,20})?[=:\'"][0-9a-zA-Z/+]{40}'''
+tags = ["key", "AWS"]
+
+[[rules]]
+description = "AWS MWS Key"
+regex = '''amzn\.mws\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'''
+tags = ["key", "AWS"]
+
+[[rules]]
+description = "GitHub Personal Access Token"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+tags = ["key", "GitHub"]
+
+[[rules]]
+description = "GitHub OAuth Access Token"
+regex = '''gho_[0-9a-zA-Z]{36}'''
+tags = ["key", "GitHub"]
+
+[[rules]]
+description = "GitHub App Token"
+regex = '''(ghu|ghs)_[0-9a-zA-Z]{36}'''
+tags = ["key", "GitHub"]
+
+[[rules]]
+description = "GitHub Refresh Token"
+regex = '''ghr_[0-9a-zA-Z]{76}'''
+tags = ["key", "GitHub"]
+
+[[rules]]
+description = "Shopify Access Token"
+regex = '''shpat_[a-zA-Z0-9]{32}'''
+tags = ["key", "Shopify"]
+
+[[rules]]
+description = "Shopify API Key"
+regex = '''[0-9a-f]{32}'''
+tags = ["key", "Shopify"]
+
+[[rules]]
+description = "Shopify Shared Secret"
+regex = '''shpss_[a-zA-Z0-9]{32}'''
+tags = ["key", "Shopify"]
+
+[[rules]]
+description = "Railway Token"
+regex = '''railway[_-]token[ =:'"]+[0-9a-f]{40}'''
+tags = ["key", "Railway"]
+
+[[rules]]
+description = "Slack Token"
+regex = '''xox[baprs]-([0-9a-zA-Z]{12}-)?[0-9a-zA-Z]{12}-[0-9a-zA-Z]{12}-[0-9a-zA-Z]{64}'''
+tags = ["key", "Slack"]
+
+[[rules]]
+description = "Stripe API Key"
+regex = '''(?i)stripe(.{0,20})?[sS]ecret(.{0,20})?[=:\'"][sk_][test_]?[0-9a-zA-Z]{24}'''
+tags = ["key", "Stripe"]
+
+[[rules]]
+description = "Generic API Key"
+regex = '''(?i)(api_key|apikey|access_key|accesskey|secret|secret_key|secretkey|password)[ =:'"]+[0-9a-zA-Z_\-]{32,}'''
+tags = ["key", "API"]
+
+[[rules]]
+description = "Database URL"
+regex = '''(?i)(mysql|postgres|postgresql|mongodb|redis):\/\/[^\s:]+:[^\s@]+@[^\s:]+:[0-9]+'''
+tags = ["database", "URL"]
+
+[[rules]]
+description = "Private Key"
+regex = '''-----BEGIN[A-Z ]+PRIVATE KEY-----'''
+tags = ["key", "PEM"]
+
+[allowlist]
+description = "Global allow list"
+regexes = [
+    '''ghp_example''',
+    '''shpat_example''',
+    '''sk_test_example''',
+    '''example_password''',
+    '''test_access_key''',
+    '''dummy_secret'''
+]
+paths = [
+    '''node_modules''',
+    '''\.git''',
+    '''coverage''',
+    '''dist''',
+    '''build''',
+    '''\.log$''',
+    '''\.env\.example$'''
+]

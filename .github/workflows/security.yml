@@ -12,6 +12,11 @@ on:
 env:
   NODE_VERSION: '18'
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
   security-audit:
     name: Security Audit
@@ -65,10 +70,15 @@ jobs:
         with:
           name: security-audit-report
           path: security-report-*.json
+        continue-on-error: true
 
   codeql-analysis:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout code
@@ -97,10 +107,9 @@ jobs:
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
-        with:
-          config-path: .gitleaks.toml
-          report-path: gitleaks-report.json
         continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Gitleaks report
         uses: actions/upload-artifact@v4
@@ -165,3 +174,4 @@ jobs:
           path: |
             dependency-report.json
             audit-report.json
+        continue-on-error: true
