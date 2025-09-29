@@ -7,6 +7,7 @@ on:
     branches: [main]
   schedule:
     - cron: '0 3 * * *'  # Daily at 3 AM
+  workflow_dispatch:
 
 env:
   NODE_VERSION: '18'
