@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Settings as SettingsIcon, Save, RefreshCw, Download, Upload } from 'lucide-react'
+import { Settings as SettingsIcon, Save, RefreshCw, Download, Upload, User } from 'lucide-react'
 
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('general')
@@ -12,6 +13,10 @@ const Settings: React.FC = () => {
     { id: 'ai', name: 'AI Configuration', icon: SettingsIcon },
     { id: 'notifications', name: 'Notifications', icon: SettingsIcon },
     { id: 'backup', name: 'Backup & Restore', icon: SettingsIcon },
+  ]
+
+  const personalTabs = [
+    { id: 'preferences', name: 'User Preferences', icon: User, path: '/settings/preferences' },
   ]
 
   return (
@@ -26,20 +31,45 @@ const Settings: React.FC = () => {
         {/* Sidebar navigation */}
         <div className="w-full lg:w-64">
           <nav className="space-y-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-primary-100 text-primary-700 border border-primary-200 dark:bg-gray-700 dark:text-white dark:border-gray-600'
-                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-                }`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                <tab.icon className="h-5 w-5 dark:text-gray-400" />
-                <span className="font-medium">{tab.name}</span>
-              </button>
-            ))}
+            {/* System Settings */}
+            <div className="mb-4">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-4">
+                System Settings
+              </h3>
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-primary-100 text-primary-700 border border-primary-200 dark:bg-gray-700 dark:text-white dark:border-gray-600'
+                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                  }`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  <tab.icon className="h-5 w-5 dark:text-gray-400" />
+                  <span className="font-medium">{tab.name}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Personal Settings */}
+            <div>
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-4">
+                Personal Settings
+              </h3>
+              {personalTabs.map((tab) => (
+                <Link
+                  key={tab.id}
+                  to={tab.path}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors block ${
+                    'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <tab.icon className="h-5 w-5 dark:text-gray-400" />
+                  <span className="font-medium">{tab.name}</span>
+                </Link>
+              ))}
+            </div>
           </nav>
         </div>
 

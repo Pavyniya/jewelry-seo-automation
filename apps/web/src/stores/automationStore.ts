@@ -1,834 +1,344 @@
-import { create } from 'zustand'
-import {
-  OptimizationRule,
-  OptimizationTemplate,
-  ApprovalRequest,
-  Workflow,
-  RuleExecutionResult,
-  AutomationFilters,
-  TemplateFilters,
-  RuleBuilderState
-} from '../../../../packages/shared/src/types/automation'
+
+import { create } from 'zustand';
+import { OptimizationRule, RulePerformance } from 'packages/shared/src/types/automation';
+import { getRules, createRule as createRuleApi, executeRule as executeRuleApi, deleteRule as deleteRuleApi } from '../services/automationService';
+
+interface Filters {
+  status?: string;
+  category?: string;
+  search?: string;
+}
+
+interface BuilderState {
+  name: string;
+  description: string;
+  category: string;
+  conditions: any[];
+  actions: any[];
+  schedule: string;
+}
 
 interface AutomationState {
-  // Rules
-  rules: OptimizationRule[]
-  templates: OptimizationTemplate[]
-  workflows: Workflow[]
-  approvals: ApprovalRequest[]
-  executionHistory: RuleExecutionResult[]
-
-  // UI State
-  loading: boolean
-  error: string | null
-  filters: AutomationFilters
-  templateFilters: TemplateFilters
-  selectedRule: OptimizationRule | null
-  builderState: RuleBuilderState | null
-  isBuilderOpen: boolean
-
-  // Performance
-  lastUpdated: string | null
+  rules: OptimizationRule[];
+  templates: OptimizationRule[];
+  performance: RulePerformance[];
+  pendingApprovals: any[];
+  workflows: any[];
+  loading: boolean;
+  error: string | null;
+  filters: Filters;
+  selectedRule: OptimizationRule | null;
+  isBuilderOpen: boolean;
+  builderState: BuilderState | null;
+  // Actions
+  fetchRules: () => Promise<void>;
+  createRule: (rule: OptimizationRule) => Promise<void>;
+  updateRule: (ruleId: string, rule: OptimizationRule) => Promise<void>;
+  deleteRule: (ruleId: string) => Promise<void>;
+  executeRule: (ruleId: string) => Promise<void>;
+  toggleRule: (ruleId: string) => void;
+  setFilters: (filters: Partial<Filters>) => void;
+  setSelectedRule: (rule: OptimizationRule | null) => void;
+  setIsBuilderOpen: (open: boolean) => void;
+  setBuilderState: (state: BuilderState | null) => void;
+  addRule: (rule: OptimizationRule) => void;
+  refreshData: () => Promise<void>;
+  fetchTemplates: () => Promise<void>;
+  fetchApprovals: () => Promise<void>;
+  fetchWorkflows: () => Promise<void>;
 }
 
-interface AutomationActions {
-  // Rules Management
-  setRules: (_rules: OptimizationRule[]) => void
-  addRule: (_rule: OptimizationRule) => void
-  updateRule: (_id: string, _updates: Partial<OptimizationRule>) => void
-  deleteRule: (_id: string) => void
-  executeRule: (_id: string) => Promise<RuleExecutionResult>
-
-  // Templates Management
-  setTemplates: (_templates: OptimizationTemplate[]) => void
-  createRuleFromTemplate: (_templateId: string) => OptimizationRule
-
-  // Approvals Management
-  setApprovals: (_approvals: ApprovalRequest[]) => void
-  approveRequest: (_id: string, _reviewedBy: string) => void
-  rejectRequest: (_id: string, _reviewedBy: string, _reason: string) => void
-
-  // Workflows Management
-  setWorkflows: (_workflows: Workflow[]) => void
-  addWorkflow: (_workflow: Workflow) => void
-
-  // UI Actions
-  setLoading: (_loading: boolean) => void
-  setError: (_error: string | null) => void
-  setFilters: (_filters: Partial<AutomationFilters>) => void
-  setTemplateFilters: (_filters: Partial<TemplateFilters>) => void
-  setSelectedRule: (_rule: OptimizationRule | null) => void
-  setBuilderState: (_state: RuleBuilderState | null) => void
-  setIsBuilderOpen: (_open: boolean) => void
-
-  // Data Fetching
-  fetchRules: () => Promise<void>
-  fetchTemplates: () => Promise<void>
-  fetchApprovals: () => Promise<void>
-  fetchWorkflows: () => Promise<void>
-  refreshData: () => Promise<void>
-}
-
-const defaultBuilderState: RuleBuilderState = {
-  name: '',
-  description: '',
-  category: 'seo',
-  conditions: [],
-  actions: [],
-  schedule: {
-    type: 'manual',
-    timezone: 'UTC'
-  },
-  isActive: true,
-  priority: 5
-}
-
-export const useAutomationStore = create<AutomationState & AutomationActions>((set, get) => ({
-  // Initial State
+const useAutomationStore = create<AutomationState>((set, get) => ({
   rules: [],
   templates: [],
+  performance: [],
+  pendingApprovals: [],
   workflows: [],
-  approvals: [],
-  executionHistory: [],
   loading: false,
   error: null,
-  filters: {
-    category: undefined,
-    status: undefined,
-    search: '',
-    sortBy: 'name'
-  },
-  templateFilters: {
-    category: undefined,
-    search: '',
-    effectiveness: undefined,
-    sortBy: 'effectiveness'
-  },
+  filters: {},
   selectedRule: null,
-  builderState: null,
   isBuilderOpen: false,
-  lastUpdated: null,
-
-  // Rules Management
-  setRules: (_rules) => set({ rules: _rules }),
-
-  addRule: (_rule) => set((state) => ({
-    rules: [...state.rules, _rule]
-  })),
-
-  updateRule: (_id, _updates) => set((state) => ({
-    rules: state.rules.map(rule =>
-      rule.id === _id ? { ...rule, ..._updates, updatedAt: new Date() } : rule
-    )
-  })),
-
-  deleteRule: (_id) => set((state) => ({
-    rules: state.rules.filter(rule => rule.id !== _id)
-  })),
-
-  executeRule: async (_id) => {
-    const { setLoading, setError } = get()
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch(`/api/v1/automation/rules/${_id}/execute`, {
-        method: 'POST'
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to execute rule')
-      }
-
-      const result = await response.json()
-
-      // Update rule performance in local state
-      set((state) => ({
-        rules: state.rules.map(rule =>
-          rule.id === _id
-            ? {
-                ...rule,
-                lastRun: new Date(),
-                performance: {
-                  ...rule.performance,
-                  executions: rule.performance.executions + 1,
-                  successes: rule.performance.successes + 1,
-                  lastMeasured: new Date()
-                }
-              }
-            : rule
-        ),
-        executionHistory: [result.data, ...state.executionHistory]
-      }))
-
-      return result.data
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error')
-      throw error
-    } finally {
-      setLoading(false)
-    }
-  },
-
-  // Templates Management
-  setTemplates: (_templates) => set({ templates: _templates }),
-
-  createRuleFromTemplate: (_templateId) => {
-    const { templates } = get()
-    const template = templates.find(t => t.id === _templateId)
-
-    if (!template) {
-      throw new Error('Template not found')
-    }
-
-    return {
-      id: '',
-      name: template.name,
-      description: template.description,
-      category: template.category as any,
-      conditions: [...template.conditions],
-      actions: [...template.actions],
-      schedule: { ...template.schedule },
-      isActive: true,
-      priority: 5,
-      performance: {
-        executions: 0,
-        successes: 0,
-        failures: 0,
-        averageImprovement: 0,
-        roi: 0,
-        lastMeasured: new Date()
-      },
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  },
-
-  // Approvals Management
-  setApprovals: (_approvals) => set({ approvals: _approvals }),
-
-  approveRequest: async (_id, _reviewedBy) => {
-    const { setLoading, setError } = get()
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch(`/api/v1/automation/approvals/${_id}/approve`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ reviewedBy: _reviewedBy })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to approve request')
-      }
-
-      set((state) => ({
-        approvals: state.approvals.map(approval =>
-          approval.id === _id
-            ? { ...approval, status: 'approved', reviewedBy: _reviewedBy, reviewedAt: new Date() }
-            : approval
-        )
-      }))
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error')
-    } finally {
-      setLoading(false)
-    }
-  },
-
-  rejectRequest: async (_id, _reviewedBy, _reason) => {
-    const { setLoading, setError } = get()
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch(`/api/v1/automation/approvals/${_id}/reject`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ reviewedBy: _reviewedBy, rejectionReason: _reason })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to reject request')
-      }
-
-      set((state) => ({
-        approvals: state.approvals.map(approval =>
-          approval.id === _id
-            ? { ...approval, status: 'rejected', reviewedBy: _reviewedBy, reviewedAt: new Date(), rejectionReason: _reason }
-            : approval
-        )
-      }))
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error')
-    } finally {
-      setLoading(false)
-    }
-  },
-
-  // Workflows Management
-  setWorkflows: (_workflows) => set({ workflows: _workflows }),
-
-  addWorkflow: (_workflow) => set((state) => ({
-    workflows: [...state.workflows, _workflow]
-  })),
-
-  // UI Actions
-  setLoading: (_loading) => set({ loading: _loading }),
-  setError: (_error) => set({ error: _error }),
-
-  setFilters: (_filters) => set((state) => ({
-    filters: { ...state.filters, ..._filters }
-  })),
-
-  setTemplateFilters: (_filters) => set((state) => ({
-    templateFilters: { ...state.templateFilters, ..._filters }
-  })),
-
-  setSelectedRule: (_rule) => set({ selectedRule: _rule }),
-
-  setBuilderState: (_state) => set({ builderState: _state }),
-
-  setIsBuilderOpen: (_open) => set({ isBuilderOpen: _open }),
-
-  // Data Fetching
+  builderState: null,
   fetchRules: async () => {
-    const { setLoading, setError, filters } = get()
-
+    set({ loading: true, error: null });
     try {
-      setLoading(true)
-      setError(null)
-
-      const params = new URLSearchParams()
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== '') {
-          params.append(key, value.toString())
-        }
-      })
-
-      const response = await fetch(`/api/v1/automation/rules?${params}`)
+      const rules = await getRules();
+      set({ rules, loading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to fetch rules',
+        loading: false
+      });
+    }
+  },
+  createRule: async (rule) => {
+    try {
+      const newRule = await createRuleApi(rule);
+      set((state) => ({ rules: [...state.rules, newRule] }));
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to create rule'
+      });
+      throw error;
+    }
+  },
+  updateRule: async (ruleId, rule) => {
+    try {
+      const response = await fetch(`/api/v1/automation/rules/${ruleId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(rule)
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch rules')
+        throw new Error('Failed to update rule');
       }
 
-      const result = await response.json()
-      set({ rules: result.data || [] })
+      const result = await response.json();
+      set((state) => ({
+        rules: state.rules.map(r => r.id === ruleId ? result.data : r)
+      }));
     } catch (error) {
-      console.warn('Failed to fetch rules from API, using mock data:', error);
-
-      // Fallback to mock rules data
-      const mockRules: OptimizationRule[] = [
+      set({
+        error: error instanceof Error ? error.message : 'Failed to update rule'
+      });
+      throw error;
+    }
+  },
+  deleteRule: async (ruleId) => {
+    try {
+      await deleteRuleApi(ruleId);
+      set((state) => ({
+        rules: state.rules.filter(r => r.id !== ruleId)
+      }));
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to delete rule'
+      });
+      throw error;
+    }
+  },
+  executeRule: async (ruleId) => {
+    try {
+      await executeRuleApi(ruleId);
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to execute rule'
+      });
+      throw error;
+    }
+  },
+  toggleRule: (ruleId) => {
+    set((state) => ({
+      rules: state.rules.map(rule =>
+        rule.id === ruleId
+          ? { ...rule, isActive: !rule.isActive }
+          : rule
+      )
+    }));
+  },
+  setFilters: (newFilters) => set((state) => ({
+    filters: { ...state.filters, ...newFilters }
+  })),
+  setSelectedRule: (rule) => set({ selectedRule: rule }),
+  setIsBuilderOpen: (open) => set({ isBuilderOpen: open }),
+  setBuilderState: (state) => set({ builderState: state }),
+  addRule: (rule) => set((state) => ({
+    rules: [...state.rules, rule]
+  })),
+  refreshData: async () => {
+    const { fetchRules, fetchTemplates, fetchApprovals, fetchWorkflows } = get();
+    await Promise.all([
+      fetchRules(),
+      fetchTemplates(),
+      fetchApprovals(),
+      fetchWorkflows()
+    ]);
+  },
+  fetchTemplates: async () => {
+    try {
+      // Sample templates for jewelry SEO automation
+      const templates: OptimizationRule[] = [
         {
-          id: '1',
-          name: 'SEO Title Optimization',
-          description: 'Automatically optimize product titles for better SEO performance',
+          id: 'template-seo-titles',
+          name: 'SEO Title Optimization Template',
+          description: 'Optimize product titles for better search engine rankings',
           category: 'seo',
           conditions: [
             {
-              id: '1',
-              type: 'performance',
-              field: 'seoScore',
-              operator: 'less_than',
-              value: 80
+              field: 'title',
+              operator: 'length',
+              value: 60,
+              conditionType: 'text'
             }
           ],
           actions: [
             {
-              id: '1',
-              type: 'update_title',
-              parameters: {
-                template: '{title} - {category} - {brand}',
-                maxLength: 60
-              },
-              approvalRequired: false
+              type: 'optimize_seo_title',
+              provider: 'openai',
+              target: 'title'
             }
           ],
-          schedule: {
-            type: 'manual',
-            timezone: 'UTC'
-          },
-          isActive: true,
-          priority: 5,
-          lastRun: new Date('2024-01-15T10:00:00Z'),
-          nextRun: new Date('2024-01-22T10:00:00Z'),
-          performance: {
-            executions: 150,
-            successes: 142,
-            failures: 8,
-            averageImprovement: 0.15,
-            roi: 2.5,
-            lastMeasured: new Date('2024-01-20T10:00:00Z')
-          },
-          createdAt: new Date('2024-01-01T00:00:00Z'),
-          updatedAt: new Date('2024-01-15T10:00:00Z')
-        },
-        {
-          id: '2',
-          name: 'Low Stock Alert',
-          description: 'Send alerts when jewelry inventory drops below threshold',
-          category: 'inventory',
-          conditions: [
-            {
-              id: '1',
-              type: 'product',
-              field: 'inventoryQuantity',
-              operator: 'less_than',
-              value: 5
-            }
-          ],
-          actions: [
-            {
-              id: '1',
-              type: 'send_alert',
-              parameters: {
-                recipients: ['admin@ohhglam.com'],
-                message: 'Low stock alert: {productTitle} has only {inventoryQuantity} items left',
-                priority: 'high'
-              },
-              approvalRequired: false
-            }
-          ],
-          schedule: {
-            type: 'recurring',
-            frequency: 'daily',
-            timezone: 'UTC'
-          },
+          schedule: { type: 'manual', timezone: 'UTC' },
           isActive: true,
           priority: 8,
-          lastRun: new Date('2024-01-19T09:00:00Z'),
-          nextRun: new Date('2024-01-20T09:00:00Z'),
-          performance: {
-            executions: 89,
-            successes: 87,
-            failures: 2,
-            averageImprovement: 0.25,
-            roi: 1.8,
-            lastMeasured: new Date('2024-01-19T09:00:00Z')
-          },
-          createdAt: new Date('2024-01-02T00:00:00Z'),
-          updatedAt: new Date('2024-01-10T14:30:00Z')
+          lastRun: null,
+          nextRun: null,
+          performance: { executions: 0, successes: 0, failures: 0, averageImprovement: 0, roi: 0, lastMeasured: new Date().toISOString() },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         },
         {
-          id: '3',
-          name: 'Pricing Optimization',
-          description: 'Adjust prices based on demand and competitor analysis',
-          category: 'pricing',
+          id: 'template-content-enhancement',
+          name: 'Content Enhancement Template',
+          description: 'Enhance product descriptions with compelling jewelry language',
+          category: 'content',
           conditions: [
             {
-              id: '1',
-              type: 'performance',
-              field: 'salesVelocity',
-              operator: 'greater_than',
-              value: 10
+              field: 'description',
+              operator: 'length',
+              value: 150,
+              conditionType: 'text'
             }
           ],
           actions: [
             {
-              id: '1',
-              type: 'update_pricing',
-              parameters: {
-                adjustment: 'increase',
-                percentage: 5,
-                maxPrice: 1000
-              },
-              approvalRequired: true
+              type: 'enhance_description',
+              provider: 'anthropic',
+              target: 'description'
             }
           ],
-          schedule: {
-            type: 'recurring',
-            frequency: 'weekly',
-            timezone: 'UTC'
-          },
+          schedule: { type: 'manual', timezone: 'UTC' },
+          isActive: true,
+          priority: 7,
+          lastRun: null,
+          nextRun: null,
+          performance: { executions: 0, successes: 0, failures: 0, averageImprovement: 0, roi: 0, lastMeasured: new Date().toISOString() },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 'template-pricing-analysis',
+          name: 'Pricing Analysis Template',
+          description: 'Analyze and suggest optimal pricing strategies',
+          category: 'pricing',
+          conditions: [
+            {
+              field: 'price',
+              operator: 'greater_than',
+              value: 50,
+              conditionType: 'numeric'
+            }
+          ],
+          actions: [
+            {
+              type: 'analyze_pricing',
+              provider: 'gemini',
+              target: 'price'
+            }
+          ],
+          schedule: { type: 'manual', timezone: 'UTC' },
           isActive: true,
           priority: 6,
-          lastRun: new Date('2024-01-12T09:15:00Z'),
-          nextRun: new Date('2024-01-19T09:15:00Z'),
-          performance: {
-            executions: 45,
-            successes: 41,
-            failures: 4,
-            averageImprovement: 0.12,
-            roi: 3.2,
-            lastMeasured: new Date('2024-01-12T09:15:00Z')
-          },
-          createdAt: new Date('2024-01-03T00:00:00Z'),
-          updatedAt: new Date('2024-01-12T09:15:00Z')
-        },
-        {
-          id: '4',
-          name: 'Image Optimization',
-          description: 'Optimize product images for better performance and SEO',
-          category: 'seo',
-          conditions: [
-            {
-              id: '1',
-              type: 'performance',
-              field: 'imageLoadTime',
-              operator: 'greater_than',
-              value: 3
-            }
-          ],
-          actions: [
-            {
-              id: '1',
-              type: 'optimize_images',
-              parameters: {
-                quality: 80,
-                maxWidth: 1200,
-                format: 'webp'
-              },
-              approvalRequired: false
-            }
-          ],
-          schedule: {
-            type: 'manual',
-            timezone: 'UTC'
-          },
-          isActive: false,
-          priority: 4,
-          performance: {
-            executions: 67,
-            successes: 64,
-            failures: 3,
-            averageImprovement: 0.18,
-            roi: 1.5,
-            lastMeasured: new Date('2024-01-08T16:45:00Z')
-          },
-          createdAt: new Date('2024-01-04T00:00:00Z'),
-          updatedAt: new Date('2024-01-08T16:45:00Z')
+          lastRun: null,
+          nextRun: null,
+          performance: { executions: 0, successes: 0, failures: 0, averageImprovement: 0, roi: 0, lastMeasured: new Date().toISOString() },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         }
       ];
-
-      set({
-        rules: mockRules,
-        error: 'Using mock data - API unavailable'
-      });
-    } finally {
-      setLoading(false)
-    }
-  },
-
-  fetchTemplates: async () => {
-    const { setLoading, setError, templateFilters } = get()
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      const params = new URLSearchParams()
-      Object.entries(templateFilters).forEach(([key, value]) => {
-        if (value !== undefined && value !== '') {
-          params.append(key, value.toString())
-        }
-      })
-
-      const response = await fetch(`/api/v1/automation/templates?${params}`)
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch templates')
-      }
-
-      const result = await response.json()
-      set({ templates: result.data || [] })
+      set({ templates });
     } catch (error) {
-      console.warn('Failed to fetch templates from API, using mock data:', error);
-
-      // Fallback to mock templates data
-      const mockTemplates: OptimizationTemplate[] = [
-        {
-          id: '1',
-          name: 'SEO Title Optimization',
-          description: 'Automatically optimize product titles for better SEO performance',
-          category: 'seo',
-          conditions: [
-            {
-              id: '1',
-              type: 'performance',
-              field: 'seoScore',
-              operator: 'less_than',
-              value: 80
-            }
-          ],
-          actions: [
-            {
-              id: '1',
-              type: 'update_title',
-              parameters: {
-                template: '{title} - {category} - {brand}',
-                maxLength: 60
-              },
-              approvalRequired: false
-            }
-          ],
-          schedule: {
-            type: 'manual',
-            timezone: 'UTC'
-          },
-          effectiveness: 85,
-          usageCount: 1250,
-          averageImprovement: 0.15,
-          isPopular: true,
-          isRecommended: true,
-          createdAt: new Date('2024-01-01T00:00:00Z'),
-          updatedAt: new Date('2024-01-15T10:00:00Z')
-        },
-        {
-          id: '2',
-          name: 'Low Stock Alert',
-          description: 'Send alerts when jewelry inventory drops below threshold',
-          category: 'inventory',
-          conditions: [
-            {
-              id: '1',
-              type: 'product',
-              field: 'inventoryQuantity',
-              operator: 'less_than',
-              value: 5
-            }
-          ],
-          actions: [
-            {
-              id: '1',
-              type: 'send_alert',
-              parameters: {
-                recipients: ['admin@ohhglam.com'],
-                message: 'Low stock alert: {productTitle} has only {inventoryQuantity} items left',
-                priority: 'high'
-              },
-              approvalRequired: false
-            }
-          ],
-          schedule: {
-            type: 'recurring',
-            frequency: 'daily',
-            timezone: 'UTC'
-          },
-          effectiveness: 95,
-          usageCount: 890,
-          averageImprovement: 0.25,
-          isPopular: true,
-          isRecommended: false,
-          createdAt: new Date('2024-01-02T00:00:00Z'),
-          updatedAt: new Date('2024-01-10T14:30:00Z')
-        },
-        {
-          id: '3',
-          name: 'Pricing Optimization',
-          description: 'Adjust prices based on demand and competitor analysis',
-          category: 'pricing',
-          conditions: [
-            {
-              id: '1',
-              type: 'performance',
-              field: 'salesVelocity',
-              operator: 'greater_than',
-              value: 10
-            }
-          ],
-          actions: [
-            {
-              id: '1',
-              type: 'update_pricing',
-              parameters: {
-                adjustment: 'increase',
-                percentage: 5,
-                maxPrice: 1000
-              },
-              approvalRequired: true
-            }
-          ],
-          schedule: {
-            type: 'recurring',
-            frequency: 'weekly',
-            timezone: 'UTC'
-          },
-          effectiveness: 78,
-          usageCount: 450,
-          averageImprovement: 0.12,
-          isPopular: false,
-          isRecommended: true,
-          createdAt: new Date('2024-01-03T00:00:00Z'),
-          updatedAt: new Date('2024-01-12T09:15:00Z')
-        },
-        {
-          id: '4',
-          name: 'Image Optimization',
-          description: 'Optimize product images for better performance and SEO',
-          category: 'seo',
-          conditions: [
-            {
-              id: '1',
-              type: 'performance',
-              field: 'imageLoadTime',
-              operator: 'greater_than',
-              value: 3
-            }
-          ],
-          actions: [
-            {
-              id: '1',
-              type: 'optimize_images',
-              parameters: {
-                quality: 80,
-                maxWidth: 1200,
-                format: 'webp'
-              },
-              approvalRequired: false
-            }
-          ],
-          schedule: {
-            type: 'manual',
-            timezone: 'UTC'
-          },
-          effectiveness: 82,
-          usageCount: 675,
-          averageImprovement: 0.18,
-          isPopular: true,
-          isRecommended: false,
-          createdAt: new Date('2024-01-04T00:00:00Z'),
-          updatedAt: new Date('2024-01-08T16:45:00Z')
-        }
-      ];
-
       set({
-        templates: mockTemplates,
-        error: 'Using mock data - API unavailable'
+        error: error instanceof Error ? error.message : 'Failed to fetch templates'
       });
-    } finally {
-      setLoading(false)
     }
   },
-
   fetchApprovals: async () => {
-    const { setLoading, setError } = get()
-
     try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch('/api/v1/automation/approvals')
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch approvals')
-      }
-
-      const result = await response.json()
-      set({ approvals: result.data || [] })
+      // Mock approvals for now
+      const pendingApprovals = [];
+      set({ pendingApprovals });
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error')
-    } finally {
-      setLoading(false)
+      set({
+        error: error instanceof Error ? error.message : 'Failed to fetch approvals'
+      });
     }
   },
-
   fetchWorkflows: async () => {
-    const { setLoading, setError } = get()
-
     try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch('/api/v1/automation/workflows')
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch workflows')
-      }
-
-      const result = await response.json()
-      set({ workflows: result.data || [] })
-    } catch (error) {
-      console.warn('Failed to fetch workflows from API, using mock data:', error);
-
-      // Fallback to mock workflows data
-      const mockWorkflows: Workflow[] = [
+      // Sample workflows for jewelry SEO automation
+      const workflows = [
         {
-          id: '1',
-          name: 'SEO Optimization Pipeline',
-          description: 'Complete SEO optimization workflow for jewelry products',
-          rules: ['1', '2', '3'],
-          dependencies: [],
-          schedule: {
-            type: 'recurring',
-            frequency: 'weekly',
-            timezone: 'UTC',
-            daysOfWeek: [1, 3, 5]
-          },
+          id: 'workflow-complete-seo',
+          name: 'Complete SEO Optimization Workflow',
+          description: 'Comprehensive SEO optimization for new products',
+          rules: ['e240970f-7be2-440b-bd75-a9053037eb87', '8d335124-e9aa-4daa-b49e-0307fa8eef32'],
+          dependencies: ['product-data-validation'],
+          schedule: { type: 'manual', timezone: 'UTC' },
           status: 'active',
           performance: {
-            executions: 25,
-            successes: 23,
-            failures: 2,
-            successRate: 0.92,
-            averageRuntime: 45.2
+            executions: 0,
+            successes: 0,
+            failures: 0,
+            successRate: 0,
+            lastRun: null,
+            averageDuration: 0
           },
-          createdAt: new Date('2024-01-15T10:00:00Z'),
-          updatedAt: new Date('2024-01-20T14:30:00Z'),
-          lastRun: new Date('2024-01-20T10:00:00Z'),
-          nextRun: new Date('2024-01-22T10:00:00Z')
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         },
         {
-          id: '2',
-          name: 'Inventory Management',
-          description: 'Automated inventory management for low stock alerts',
-          rules: ['4', '5'],
-          dependencies: [],
-          schedule: {
-            type: 'recurring',
-            frequency: 'daily',
-            timezone: 'UTC'
-          },
+          id: 'workflow-content-refresh',
+          name: 'Content Refresh Workflow',
+          description: 'Refresh and enhance product content monthly',
+          rules: ['253b1078-c5f7-4954-80cc-409e0e43ad30'],
+          dependencies: ['inventory-check'],
+          schedule: { type: 'monthly', day: 1, time: '03:00', timezone: 'UTC' },
           status: 'active',
           performance: {
-            executions: 150,
-            successes: 148,
-            failures: 2,
-            successRate: 0.987,
-            averageRuntime: 12.8
+            executions: 0,
+            successes: 0,
+            failures: 0,
+            successRate: 0,
+            lastRun: null,
+            averageDuration: 0
           },
-          createdAt: new Date('2024-01-10T09:00:00Z'),
-          updatedAt: new Date('2024-01-19T11:00:00Z'),
-          lastRun: new Date('2024-01-19T09:00:00Z'),
-          nextRun: new Date('2024-01-20T09:00:00Z')
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 'workflow-pricing-review',
+          name: 'Pricing Review Workflow',
+          description: 'Review and adjust pricing strategies quarterly',
+          rules: ['71cbf333-17aa-4e2f-ba11-7ede4f5c0151'],
+          dependencies: ['market-analysis'],
+          schedule: { type: 'quarterly', month: [0, 3, 6, 9], day: 1, time: '04:00', timezone: 'UTC' },
+          status: 'inactive',
+          performance: {
+            executions: 0,
+            successes: 0,
+            failures: 0,
+            successRate: 0,
+            lastRun: null,
+            averageDuration: 0
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         }
       ];
-
+      set({ workflows });
+    } catch (error) {
       set({
-        workflows: mockWorkflows,
-        error: 'Using mock data - API unavailable'
+        error: error instanceof Error ? error.message : 'Failed to fetch workflows'
       });
-    } finally {
-      setLoading(false)
     }
   },
+  setWorkflows: (workflows) => set({ workflows }),
+  }));
 
-  refreshData: async () => {
-    const { setLoading, setError } = get()
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      await Promise.all([
-        get().fetchRules(),
-        get().fetchTemplates(),
-        get().fetchApprovals(),
-        get().fetchWorkflows()
-      ])
-
-      set({ lastUpdated: new Date().toISOString() })
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error')
-    } finally {
-      setLoading(false)
-    }
-  }
-}))
+export { useAutomationStore };
+export default useAutomationStore;

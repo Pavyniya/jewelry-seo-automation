@@ -86,7 +86,14 @@ export const config = {
   },
 
   cors: {
-    origin: env.FRONTEND_URL,
+    origin: [env.FRONTEND_URL, 'http://localhost:4000', 'http://localhost:4001'],
+  },
+
+  jwt: {
+    secret: process.env.JWT_SECRET || 'fallback-secret-change-in-production',
+    refreshSecret: process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret-change-in-production',
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m',
+    refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
   },
 
   isDevelopment: env.NODE_ENV === 'development',

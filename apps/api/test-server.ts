@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 const app = express();
-const PORT = 3001;
+const PORT = 3002;
 
 // Middleware
 app.use(cors({
@@ -983,6 +983,585 @@ app.post('/api/v1/analytics/competitors', (req, res) => {
     success: true,
     data: newCompetitor,
     message: 'Competitor added successfully'
+  });
+});
+
+// AI Provider endpoints for dashboard compatibility
+app.get('/api/ai-providers/health', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      {
+        id: 'gemini-pro',
+        name: 'Google Gemini Pro',
+        status: 'healthy',
+        responseTime: 180,
+        successRate: 98.5,
+        lastCheck: new Date().toISOString(),
+        error: null
+      },
+      {
+        id: 'claude-3',
+        name: 'Anthropic Claude 3',
+        status: 'healthy',
+        responseTime: 320,
+        successRate: 96.2,
+        lastCheck: new Date().toISOString(),
+        error: null
+      },
+      {
+        id: 'gpt-4',
+        name: 'OpenAI GPT-4',
+        status: 'degraded',
+        responseTime: 520,
+        successRate: 89.1,
+        lastCheck: new Date().toISOString(),
+        error: 'High latency detected'
+      }
+    ]
+  });
+});
+
+app.get('/api/ai-providers/performance', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      {
+        providerId: 'gemini-pro',
+        providerName: 'Google Gemini Pro',
+        totalRequests: 1250,
+        successfulRequests: 1231,
+        failedRequests: 19,
+        averageResponseTime: 180,
+        successRate: 98.5,
+        totalTokens: 45600,
+        estimatedCost: 0.09,
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        providerId: 'claude-3',
+        providerName: 'Anthropic Claude 3',
+        totalRequests: 980,
+        successfulRequests: 943,
+        failedRequests: 37,
+        averageResponseTime: 320,
+        successRate: 96.2,
+        totalTokens: 28900,
+        estimatedCost: 0.43,
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        providerId: 'gpt-4',
+        providerName: 'OpenAI GPT-4',
+        totalRequests: 2100,
+        successfulRequests: 1871,
+        failedRequests: 229,
+        averageResponseTime: 520,
+        successRate: 89.1,
+        totalTokens: 67800,
+        estimatedCost: 2.03,
+        lastUpdated: new Date().toISOString()
+      }
+    ]
+  });
+});
+
+app.get('/api/ai-providers/rate-limits', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      {
+        providerId: 'gemini-pro',
+        providerName: 'Google Gemini Pro',
+        limit: 60,
+        used: 24,
+        remaining: 36,
+        resetTime: new Date(Date.now() + 3600000).toISOString(),
+        percentage: 40
+      },
+      {
+        providerId: 'claude-3',
+        providerName: 'Anthropic Claude 3',
+        limit: 50,
+        used: 18,
+        remaining: 32,
+        resetTime: new Date(Date.now() + 3600000).toISOString(),
+        percentage: 36
+      },
+      {
+        providerId: 'gpt-4',
+        providerName: 'OpenAI GPT-4',
+        limit: 200,
+        used: 156,
+        remaining: 44,
+        resetTime: new Date(Date.now() + 3600000).toISOString(),
+        percentage: 78
+      }
+    ]
+  });
+});
+
+app.get('/api/ai-providers/costs', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      totalCost: 2.55,
+      costBreakdown: [
+        {
+          providerId: 'gemini-pro',
+          providerName: 'Google Gemini Pro',
+          cost: 0.09,
+          percentage: 3.5,
+          requests: 1250
+        },
+        {
+          providerId: 'claude-3',
+          providerName: 'Anthropic Claude 3',
+          cost: 0.43,
+          percentage: 16.9,
+          requests: 980
+        },
+        {
+          providerId: 'gpt-4',
+          providerName: 'OpenAI GPT-4',
+          cost: 2.03,
+          percentage: 79.6,
+          requests: 2100
+        }
+      ],
+      optimization: {
+        potentialSavings: 0.38,
+        recommendations: [
+          'Switch product descriptions from GPT-4 to Gemini Pro to save 15%',
+          'Use Claude 3 for SEO titles to improve quality by 22%'
+        ]
+      }
+    }
+  });
+});
+
+app.get('/api/ai-providers/available', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      {
+        id: 'gemini-pro',
+        name: 'Google Gemini Pro',
+        enabled: true,
+        priority: 1,
+        capabilities: ['text-generation', 'seo-optimization', 'content-creation'],
+        config: {
+          model: 'gemini-pro',
+          maxTokens: 2048,
+          temperature: 0.7
+        }
+      },
+      {
+        id: 'claude-3',
+        name: 'Anthropic Claude 3',
+        enabled: true,
+        priority: 2,
+        capabilities: ['text-generation', 'seo-optimization', 'content-review'],
+        config: {
+          model: 'claude-3-sonnet-20240229',
+          maxTokens: 4096,
+          temperature: 0.5
+        }
+      },
+      {
+        id: 'gpt-4',
+        name: 'OpenAI GPT-4',
+        enabled: true,
+        priority: 3,
+        capabilities: ['text-generation', 'seo-optimization', 'content-analysis'],
+        config: {
+          model: 'gpt-4',
+          maxTokens: 8192,
+          temperature: 0.6
+        }
+      }
+    ]
+  });
+});
+
+// Legacy analytics endpoints for frontend compatibility
+app.get('/api/analytics/seo', (req, res) => {
+  // Return data that matches the expected SeoMetrics interface
+  const mockSeoMetrics = [
+    {
+      id: '1',
+      productId: '1',
+      keyword: '3d rose pendant necklace',
+      position: 3,
+      searchVolume: 8500,
+      difficulty: 65,
+      clickThroughRate: 7.9,
+      impressions: 3600,
+      clicks: 285,
+      date: new Date().toISOString()
+    },
+    {
+      id: '2',
+      productId: '2',
+      keyword: 'heart necklace gold',
+      position: 5,
+      searchVolume: 12200,
+      difficulty: 72,
+      clickThroughRate: 7.1,
+      impressions: 6250,
+      clicks: 445,
+      date: new Date().toISOString()
+    }
+  ];
+  res.json(mockSeoMetrics);
+});
+
+app.get('/api/analytics/competitors', (req, res) => {
+  // Return data that matches the expected CompetitorAnalysis interface
+  const mockCompetitors = [
+    {
+      id: '1',
+      productId: '1',
+      competitorDomain: 'brilliantearth.com',
+      competitorPosition: 2,
+      marketShare: 25,
+      contentGap: ['ethical sourcing claims', 'custom design options', 'lifetime warranty'],
+      priceComparison: 15,
+      strengths: ['Brand reputation', 'Product quality', 'Ethical sourcing'],
+      weaknesses: ['Higher prices', 'Limited customization'],
+      lastAnalyzed: new Date().toISOString()
+    },
+    {
+      id: '2',
+      productId: '1',
+      competitorDomain: 'bluenile.com',
+      competitorPosition: 1,
+      marketShare: 35,
+      contentGap: ['Virtual try-on', 'Educational content', '24/7 customer service'],
+      priceComparison: 10,
+      strengths: ['Brand authority', 'Wide selection', 'Competitive pricing'],
+      weaknesses: ['Less personal touch', 'Limited physical stores'],
+      lastAnalyzed: new Date().toISOString()
+    }
+  ];
+  res.json(mockCompetitors);
+});
+
+app.get('/api/analytics/quality-scores', (req, res) => {
+  // Return data that matches the expected ContentQualityScore interface
+  const mockQualityScores = [
+    {
+      id: '1',
+      productId: '1',
+      seoScore: 85,
+      readabilityScore: 90,
+      brandVoiceScore: 88,
+      uniquenessScore: 82,
+      keywordOptimization: 78,
+      overallScore: 85,
+      recommendations: [
+        'Add more descriptive details about the product',
+        'Include specific materials and craftsmanship information',
+        'Add structured bullet points for better readability'
+      ],
+      lastCalculated: new Date().toISOString()
+    },
+    {
+      id: '2',
+      productId: '2',
+      seoScore: 92,
+      readabilityScore: 95,
+      brandVoiceScore: 90,
+      uniquenessScore: 88,
+      keywordOptimization: 85,
+      overallScore: 92,
+      recommendations: [
+        'Optimize meta description for better click-through rate',
+        'Add more emotional appeal to the description',
+        'Include customer testimonials or social proof'
+      ],
+      lastCalculated: new Date().toISOString()
+    }
+  ];
+  res.json(mockQualityScores);
+});
+
+app.get('/api/analytics/trends', (req, res) => {
+  // Return data that matches the expected TrendAnalysis interface
+  const mockTrends = [
+    {
+      id: '1',
+      productId: '1',
+      metric: 'organic_traffic',
+      timeframe: 'monthly',
+      data: [
+        { date: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], value: 12500, events: ['Product launch'] },
+        { date: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], value: 13200, events: ['SEO optimization'] },
+        { date: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], value: 14100, events: ['Content update'] },
+        { date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], value: 15800, events: ['Marketing campaign'] },
+        { date: new Date().toISOString().split('T')[0], value: 17200, events: ['Holiday promotion'] }
+      ],
+      trend: 'up',
+      changePercentage: 37.6,
+      correlation: 0.95,
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: '2',
+      productId: '1',
+      metric: 'keyword_positions',
+      timeframe: 'monthly',
+      data: [
+        { date: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], value: 45, events: ['Algorithm update'] },
+        { date: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], value: 42, events: ['Competitor analysis'] },
+        { date: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], value: 38, events: ['Keyword optimization'] },
+        { date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], value: 35, events: ['Content refinement'] },
+        { date: new Date().toISOString().split('T')[0], value: 32, events: ['SEO improvement'] }
+      ],
+      trend: 'up',
+      changePercentage: -28.9,
+      correlation: -0.89,
+      lastUpdated: new Date().toISOString()
+    }
+  ];
+  res.json(mockTrends);
+});
+
+// AI Provider POST endpoints
+app.post('/api/ai-providers/select', (req, res) => {
+  const { providerId, prompt } = req.body;
+  res.json({
+    success: true,
+    data: {
+      selectedProvider: providerId,
+      response: `Mock response from ${providerId} for prompt: ${prompt}`,
+      timestamp: new Date().toISOString(),
+      tokensUsed: Math.floor(Math.random() * 1000) + 100,
+      responseTime: Math.floor(Math.random() * 2000) + 100
+    }
+  });
+});
+
+app.post('/api/ai-providers/test', (req, res) => {
+  const { providerId, testPrompt } = req.body;
+  const delay = Math.floor(Math.random() * 3000) + 500;
+
+  setTimeout(() => {
+    res.json({
+      success: true,
+      data: {
+        providerId,
+        status: 'success',
+        responseTime: delay,
+        response: `Test response from ${providerId}`,
+        timestamp: new Date().toISOString()
+      }
+    });
+  }, delay);
+});
+
+app.post('/api/ai-providers/failover', (req, res) => {
+  const { fromProvider, toProvider, reason } = req.body;
+  res.json({
+    success: true,
+    data: {
+      failoverTriggered: true,
+      fromProvider,
+      toProvider,
+      reason,
+      timestamp: new Date().toISOString(),
+      requestsRerouted: Math.floor(Math.random() * 50) + 10
+    }
+  });
+});
+
+app.post('/api/ai-providers/optimize', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      optimizationApplied: true,
+      recommendations: [
+        'Switch product descriptions from GPT-4 to Gemini Pro to save 15%',
+        'Use Claude 3 for SEO titles to improve quality by 22%',
+        'Implement request batching to reduce API calls by 30%'
+      ],
+      estimatedSavings: 0.42,
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
+app.post('/api/ai-providers/record-result', (req, res) => {
+  const { providerId, success, responseTime, tokensUsed, error } = req.body;
+  res.json({
+    success: true,
+    data: {
+      recorded: true,
+      providerId,
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
+// Automation endpoints
+app.get('/api/automation/rules', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      {
+        id: '1',
+        name: 'SEO Title Optimization',
+        description: 'Automatically optimize product titles for better SEO',
+        type: 'seo_optimization',
+        trigger: 'product_created',
+        conditions: {
+          field: 'title',
+          operator: 'length_greater_than',
+          value: 60
+        },
+        actions: [
+          {
+            type: 'optimize_title',
+            provider: 'gemini-pro',
+            parameters: {
+              maxLength: 60,
+              includeKeywords: true
+            }
+          }
+        ],
+        isActive: true,
+        priority: 1,
+        createdAt: new Date().toISOString(),
+        lastRun: new Date().toISOString(),
+        runCount: 45,
+        successRate: 92.5
+      },
+      {
+        id: '2',
+        name: 'Description Enhancement',
+        description: 'Enhance product descriptions using AI',
+        type: 'content_enhancement',
+        trigger: 'product_updated',
+        conditions: {
+          field: 'description',
+          operator: 'length_less_than',
+          value: 100
+        },
+        actions: [
+          {
+            type: 'enhance_description',
+            provider: 'claude-3',
+            parameters: {
+              targetLength: 200,
+              includeFeatures: true
+            }
+          }
+        ],
+        isActive: true,
+        priority: 2,
+        createdAt: new Date().toISOString(),
+        lastRun: new Date(Date.now() - 3600000).toISOString(),
+        runCount: 23,
+        successRate: 87.8
+      }
+    ]
+  });
+});
+
+app.get('/api/automation/rules/:id', (req, res) => {
+  const { id } = req.params;
+  res.json({
+    success: true,
+    data: {
+      id,
+      name: 'SEO Title Optimization',
+      description: 'Automatically optimize product titles for better SEO',
+      type: 'seo_optimization',
+      trigger: 'product_created',
+      conditions: {
+        field: 'title',
+        operator: 'length_greater_than',
+        value: 60
+      },
+      actions: [
+        {
+          type: 'optimize_title',
+          provider: 'gemini-pro',
+          parameters: {
+            maxLength: 60,
+            includeKeywords: true
+          }
+        }
+      ],
+      isActive: true,
+      priority: 1,
+      createdAt: new Date().toISOString(),
+      lastRun: new Date().toISOString(),
+      runCount: 45,
+      successRate: 92.5
+    }
+  });
+});
+
+app.get('/api/automation/performance', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      {
+        ruleId: '1',
+        ruleName: 'SEO Title Optimization',
+        executions: 45,
+        successful: 42,
+        failed: 3,
+        averageExecutionTime: 1200,
+        lastExecution: new Date().toISOString(),
+        successRate: 93.3
+      },
+      {
+        ruleId: '2',
+        ruleName: 'Description Enhancement',
+        executions: 23,
+        successful: 20,
+        failed: 3,
+        averageExecutionTime: 2400,
+        lastExecution: new Date(Date.now() - 3600000).toISOString(),
+        successRate: 87.0
+      }
+    ]
+  });
+});
+
+app.get('/api/automation/approval-queue', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      {
+        id: '1',
+        productId: '1',
+        productTitle: '3D Rose Pendant Necklace',
+        ruleName: 'SEO Title Optimization',
+        originalContent: '3D Rose Pendant Necklace',
+        proposedContent: 'Elegant 3D Rose Pendant Necklace - Gold Plated',
+        confidence: 0.92,
+        reason: 'AI-generated title optimization improves SEO score',
+        status: 'pending',
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        expiresAt: new Date(Date.now() + 7200000).toISOString()
+      },
+      {
+        id: '2',
+        productId: '2',
+        productTitle: 'Heart Necklace Gold',
+        ruleName: 'Description Enhancement',
+        originalContent: 'Beautiful heart necklace in gold',
+        proposedContent: 'Exquisite 14k Gold Heart Necklace - Perfect for Valentine\'s Day. Features a delicate heart pendant crafted from genuine 14k gold, suspended from an elegant chain. This timeless piece symbolizes love and makes the perfect gift for anniversaries, birthdays, or special occasions.',
+        confidence: 0.88,
+        reason: 'Enhanced description with better SEO keywords and emotional appeal',
+        status: 'pending',
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        expiresAt: new Date(Date.now() + 10800000).toISOString()
+      }
+    ]
   });
 });
 

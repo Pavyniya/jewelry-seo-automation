@@ -20,7 +20,7 @@ export class AiServiceImpl implements AiService {
   private providers = new Map<AiProviderName, AiProvider>();
 
   constructor() {
-    this.initialize();
+    // Don't initialize automatically - will be initialized manually when needed
   }
 
   public async initialize() {
@@ -160,3 +160,4 @@ export class AiServiceImpl implements AiService {
 }
 
 export const aiService = new AiServiceImpl();
+// Don't initialize automatically - will be initialized manually when needed

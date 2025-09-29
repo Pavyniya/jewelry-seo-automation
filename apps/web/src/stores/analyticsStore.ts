@@ -1,87 +1,96 @@
-import { create } from 'zustand'
-import { KeywordData, CompetitorData, SEOTrendData, PerformanceMetrics, AnalyticsFilters } from '@/types/analytics'
+
+import { create } from 'zustand';
+import { SeoMetrics, CompetitorAnalysis, ContentQualityScore, TrendAnalysis } from 'packages/shared/src/types/analytics';
+import { getSeoMetrics, getCompetitorAnalysis, getContentQualityScores, getTrendAnalysis } from '../services/analyticsService';
+
+interface Filters {
+  dateRange: string;
+}
+
+interface Performance {
+  impressions: number;
+  ctr: number;
+  position: number;
+  clicks: number;
+}
 
 interface AnalyticsState {
-  keywords: KeywordData[]
-  competitors: CompetitorData[]
-  trends: SEOTrendData[]
-  performance: PerformanceMetrics | null
-  loading: boolean
-  error: string | null
-  filters: AnalyticsFilters
-  lastUpdated: string | null
+  seoMetrics: SeoMetrics[];
+  competitorData: CompetitorAnalysis[];
+  qualityScores: ContentQualityScore[];
+  trendData: TrendAnalysis[];
+  contentGapData: string[];
+  keywords: any[];
+  performance: Performance | null;
+  loading: boolean;
+  error: string | null;
+  filters: Filters;
+  lastUpdated: string | null;
+  setFilters: (filters: Partial<Filters>) => void;
+  refreshData: () => Promise<void>;
 }
 
-interface AnalyticsActions {
-  setKeywords: (_keywords: KeywordData[]) => void
-  setCompetitors: (_competitors: CompetitorData[]) => void
-  setTrends: (_trends: SEOTrendData[]) => void
-  setPerformance: (_performance: PerformanceMetrics) => void
-  setLoading: (_loading: boolean) => void
-  setError: (_error: string | null) => void
-  setFilters: (_filters: Partial<AnalyticsFilters>) => void
-  refreshData: () => Promise<void>
-}
-
-export const useAnalyticsStore = create<AnalyticsState & AnalyticsActions>((set, get) => ({
+const useAnalyticsStore = create<AnalyticsState>((set) => ({
+  seoMetrics: [],
+  competitorData: [],
+  qualityScores: [],
+  trendData: [],
+  contentGapData: [],
   keywords: [],
-  competitors: [],
-  trends: [],
   performance: null,
   loading: false,
   error: null,
   filters: {
-    dateRange: '30d',
-    status: 'all'
+    dateRange: '30d'
   },
   lastUpdated: null,
-
-  setKeywords: (_keywords) => set({ keywords: _keywords }),
-  setCompetitors: (_competitors) => set({ competitors: _competitors }),
-  setTrends: (_trends) => set({ trends: _trends }),
-  setPerformance: (_performance) => set({ performance: _performance }),
-  setLoading: (_loading) => set({ loading: _loading }),
-  setError: (_error) => set({ error: _error }),
-  setFilters: (_filters) => set((state) => ({
-    filters: { ...state.filters, ..._filters }
+  setFilters: (newFilters) => set((state) => ({
+    filters: { ...state.filters, ...newFilters }
   })),
-
   refreshData: async () => {
-    const { setLoading, setError, filters } = get()
-
+    set({ loading: true, error: null });
     try {
-      setLoading(true)
-      setError(null)
+      const [seoMetrics, competitorData, qualityScores, trendData] = await Promise.all([
+        getSeoMetrics(),
+        getCompetitorAnalysis(),
+        getContentQualityScores(),
+        getTrendAnalysis(),
+      ]);
 
-      const [keywordsRes, competitorsRes, trendsRes, performanceRes] = await Promise.all([
-        fetch(`/api/v1/analytics/keywords?${new URLSearchParams(filters as any)}`),
-        fetch(`/api/v1/analytics/competitors?${new URLSearchParams(filters as any)}`),
-        fetch(`/api/v1/analytics/trends?${new URLSearchParams(filters as any)}`),
-        fetch(`/api/v1/analytics/performance?${new URLSearchParams(filters as any)}`)
-      ])
-
-      if (!keywordsRes.ok || !competitorsRes.ok || !trendsRes.ok || !performanceRes.ok) {
-        throw new Error('Failed to fetch analytics data')
-      }
-
-      const [keywords, competitors, trends, performance] = await Promise.all([
-        keywordsRes.json(),
-        competitorsRes.json(),
-        trendsRes.json(),
-        performanceRes.json()
-      ])
+      // Calculate performance metrics from SEO metrics
+      const performance = seoMetrics.length > 0 ? {
+        impressions: seoMetrics.reduce((sum, metric) => sum + (metric.impressions || 0), 0),
+        ctr: seoMetrics.reduce((sum, metric) => sum + (metric.clickThroughRate || 0), 0) / seoMetrics.length,
+        position: seoMetrics.reduce((sum, metric) => sum + (metric.position || 0), 0) / seoMetrics.length,
+        clicks: seoMetrics.reduce((sum, metric) => sum + (metric.clicks || 0), 0),
+      } : {
+        impressions: 0,
+        ctr: 0,
+        position: 0,
+        clicks: 0,
+      };
 
       set({
-        keywords: keywords.data || [],
-        competitors: competitors.data || [],
-        trends: trends.data || [],
-        performance: performance.data || null,
-        lastUpdated: new Date().toISOString()
-      })
+        seoMetrics,
+        competitorData,
+        qualityScores,
+        trendData,
+        contentGapData: [], // This will be populated from a real source later
+        performance,
+        loading: false,
+        lastUpdated: new Date().toISOString(),
+        error: null,
+      });
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error')
-    } finally {
-      setLoading(false)
+      console.error("Failed to refresh analytics data:", error);
+      set({
+        loading: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch analytics data',
+        lastUpdated: new Date().toISOString()
+      });
     }
-  }
-}))
+  },
+}));
+
+export { useAnalyticsStore };
+export default useAnalyticsStore;

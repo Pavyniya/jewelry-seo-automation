@@ -30,7 +30,7 @@ const KeywordTracking: React.FC<KeywordTrackingProps> = ({ className }) => {
     refreshData()
   }, [filters.dateRange])
 
-  const filteredKeywords = keywords.filter(keyword =>
+  const filteredKeywords = (keywords || []).filter(keyword =>
     keyword.keyword.toLowerCase().includes(searchTerm.toLowerCase())
   ).sort((a, b) => {
     switch (sortBy) {

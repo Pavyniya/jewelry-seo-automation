@@ -7,6 +7,7 @@ import analyticsRouter from './api/analytics';
 import automationRouter from './api/automation';
 import migrationsRouter from './migrations';
 import authRouter from './api/auth';
+import contentStrategiesRouter from './api/content-strategies';
 
 const router: Router = Router();
 
@@ -18,5 +19,6 @@ router.use('/analytics', analyticsRouter);
 router.use('/automation', automationRouter);
 router.use('/migrations', migrationsRouter);
 router.use('/auth', authRouter);
+router.use('/content-strategies', contentStrategiesRouter);
 
 export default router;

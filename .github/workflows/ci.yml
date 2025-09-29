@@ -1,0 +1,253 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  DATABASE_URL: './test.sqlite'
+  SHOPIFY_API_KEY: 'test_key'
+  SHOPIFY_API_SECRET: 'test_secret'
+  SHOPIFY_ACCESS_TOKEN: 'test_token'
+  SHOPIFY_STORE_NAME: 'test-store.myshopify.com'
+
+jobs:
+  lint-and-format:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run ESLint
+        run: pnpm lint
+
+      - name: Run Prettier check
+        run: pnpm format:check
+
+      - name: Run TypeScript check
+        run: pnpm type-check
+
+  test-backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Setup database
+        run: |
+          pnpm --filter @jewelry-seo/api db:migrate
+          pnpm --filter @jewelry-seo/api db:seed
+
+      - name: Run unit tests
+        run: pnpm --filter @jewelry-seo/api test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+
+      - name: Run integration tests
+        run: pnpm --filter @jewelry-seo/api test:integration
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+
+      - name: Run security tests
+        run: pnpm --filter @jewelry-seo/security test
+        env:
+          BASE_URL: http://localhost:3001
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./apps/api/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+
+  test-frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run unit tests
+        run: pnpm --filter @jewelry-seo/web test
+
+      - name: Run component tests
+        run: pnpm --filter @jewelry-seo/web test:components
+
+      - name: Run E2E tests
+        run: pnpm --filter @jewelry-seo/web test:e2e
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./apps/web/coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Start API server
+        run: |
+          pnpm --filter @jewelry-seo/api build
+          PORT=3001 DATABASE_URL=./test.sqlite node apps/api/dist/server.js &
+          sleep 10
+
+      - name: Run API performance tests
+        run: pnpm --filter @jewelry-seo/performance test:api
+        env:
+          BASE_URL: http://localhost:3001
+
+      - name: Run load tests
+        run: pnpm --filter @jewelry-seo/performance test:load
+        env:
+          BASE_URL: http://localhost:3001
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: apps/performance/results/
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run security audit
+        run: npm audit --audit-level high
+
+      - name: Run security tests
+        run: pnpm --filter @jewelry-seo/security test
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: security-report-*.json
+
+  build-and-deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    needs: [performance-tests, security-scan]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build API
+        run: pnpm --filter @jewelry-seo/api build
+
+      - name: Build Web
+        run: pnpm --filter @jewelry-seo/web build
+
+      - name: Build Security tools
+        run: pnpm --filter @jewelry-seo/security build
+
+      - name: Build Performance tools
+        run: pnpm --filter @jewelry-seo/performance build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+            apps/api/dist/
+            apps/web/dist/
+            apps/security/dist/
+            apps/performance/dist/
+
+      - name: Deploy to staging (example)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Deploying to staging environment..."
+          # Add deployment commands here

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import { BreadcrumbNav } from '@/components/ui/Breadcrumb'
 import { cn } from '@/utils/cn'
 
 interface LayoutProps {
@@ -33,6 +34,11 @@ const Layout: React.FC<LayoutProps> = () => {
         <main className="flex-1">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {/* Breadcrumb navigation */}
+              <div className="mb-6">
+                <BreadcrumbNav autoGenerate showHome={true} />
+              </div>
+
               <Outlet />
             </div>
           </div>

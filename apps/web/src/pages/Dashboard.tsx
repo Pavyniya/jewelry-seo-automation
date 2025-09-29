@@ -29,7 +29,16 @@ const Dashboard: React.FC = () => {
       const data = await response.json()
 
       if (data.success) {
-        setStats(data.data)
+        // Transform the backend data structure to match frontend expectations
+        const backendStats = data.data;
+        setStats({
+          total: backendStats.total,
+          pending: backendStats.pending,
+          processing: backendStats.processing,
+          completed: backendStats.completed,
+          failed: backendStats.failed,
+          needs_review: backendStats.needs_review,
+        });
       } else {
         setError('Failed to fetch statistics')
       }
@@ -44,32 +53,35 @@ const Dashboard: React.FC = () => {
   const getStatsData = () => {
     if (!stats) return []
 
+    // Calculate real SEO score
+    const seoScore = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0
+
     return [
       {
         name: 'Total Products',
         value: stats.total.toLocaleString(),
-        change: '+12%',
+        change: '', // Remove fake percentage change
         changeType: 'positive' as const,
         icon: Gem,
       },
       {
         name: 'Optimized Items',
         value: stats.completed.toLocaleString(),
-        change: '+23%',
+        change: '', // Remove fake percentage change
         changeType: 'positive' as const,
         icon: Target,
       },
       {
         name: 'SEO Score',
-        value: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) + '%' : '0%',
-        change: '+5.2%',
+        value: seoScore + '%',
+        change: '', // Remove fake percentage change
         changeType: 'positive' as const,
         icon: TrendingUp,
       },
       {
-        name: 'Pending Review',
-        value: stats.needs_review.toLocaleString(),
-        change: '+8%',
+        name: 'Pending Items',
+        value: (stats.pending + stats.needs_review).toLocaleString(),
+        change: '', // Remove fake percentage change
         changeType: 'positive' as const,
         icon: Users,
       },
@@ -121,37 +133,31 @@ const Dashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</div>
-              <p className={`text-xs ${
-                stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {stat.change} from last month
-              </p>
+              {stat.change && (
+                <p className={`text-xs ${
+                  stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {stat.change} from last month
+                </p>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Recent activity */}
+      {/* Recent activity - removed fake data, real activity tracking requires integration */}
       <Card>
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {[
-              { action: 'Product optimized', product: 'Diamond Ring', time: '2 hours ago' },
-              { action: 'New product added', product: 'Gold Necklace', time: '5 hours ago' },
-              { action: 'SEO analysis completed', product: 'Pearl Earrings', time: '1 day ago' },
-              { action: 'Content review approved', product: 'Silver Bracelet', time: '2 days ago' },
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.action}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{activity.product}</p>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{activity.time}</p>
-              </div>
-            ))}
+          <div className="text-center py-8">
+            <p className="text-gray-600 dark:text-gray-400">
+              Activity tracking requires integration with real business systems
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+              No fake activity data is displayed
+            </p>
           </div>
         </CardContent>
       </Card>

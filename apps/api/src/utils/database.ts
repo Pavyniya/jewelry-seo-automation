@@ -14,7 +14,7 @@ class Database {
     if (config.isTest) {
       this.dbPath = ':memory:';
     } else {
-      this.dbPath = config.isDevelopment ? './jewelry_seo_simple.db' : './jewelry_seo.db';
+      this.dbPath = process.env.DATABASE_URL || (config.isDevelopment ? './jewelry_seo_simple.db' : './jewelry_seo.db');
     }
   }
 
@@ -53,23 +53,23 @@ class Database {
         title TEXT NOT NULL,
         description TEXT,
         vendor TEXT,
-        productType TEXT,
+        product_type TEXT,
         tags TEXT,
         variants TEXT,
         images TEXT,
         price REAL,
         sku TEXT,
-        seoTitle TEXT,
-        seoDescription TEXT,
-        optimizedDescription TEXT,
-        optimizationStatus TEXT NOT NULL DEFAULT 'pending',
-        lastOptimized DATETIME,
-        createdAt DATETIME NOT NULL,
-        updatedAt DATETIME NOT NULL,
-        shopifyData TEXT,
-        syncVersion INTEGER DEFAULT 1
+        seo_title TEXT,
+        seo_description TEXT,
+        optimized_description TEXT,
+        status TEXT DEFAULT 'active',
+        last_optimized DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        shopify_data TEXT,
+        sync_version INTEGER DEFAULT 1
       )`,
-      `CREATE INDEX IF NOT EXISTS idx_products_status ON products(optimizationStatus)`,
+      `CREATE INDEX IF NOT EXISTS idx_products_status ON products(status)`,
       `CREATE TABLE IF NOT EXISTS optimization_versions (
         id TEXT PRIMARY KEY,
         productId TEXT NOT NULL,
@@ -144,6 +144,131 @@ class Database {
         createdAt DATETIME NOT NULL,
         FOREIGN KEY (productId) REFERENCES products (id) ON DELETE CASCADE,
         FOREIGN KEY (providerId) REFERENCES ai_providers (id) ON DELETE SET NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS seo_metrics (
+        id TEXT PRIMARY KEY,
+        productId TEXT NOT NULL,
+        keyword TEXT NOT NULL,
+        position INTEGER,
+        searchVolume INTEGER,
+        difficulty INTEGER,
+        clickThroughRate REAL,
+        impressions INTEGER,
+        clicks INTEGER,
+        date DATETIME NOT NULL,
+        FOREIGN KEY (productId) REFERENCES products (id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS competitor_analysis (
+        id TEXT PRIMARY KEY,
+        productId TEXT NOT NULL,
+        competitorDomain TEXT NOT NULL,
+        competitorPosition INTEGER,
+        marketShare REAL,
+        contentGap TEXT,
+        priceComparison REAL,
+        strengths TEXT,
+        weaknesses TEXT,
+        lastAnalyzed DATETIME NOT NULL,
+        FOREIGN KEY (productId) REFERENCES products (id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS content_quality_scores (
+        id TEXT PRIMARY KEY,
+        productId TEXT NOT NULL,
+        seoScore REAL,
+        readabilityScore REAL,
+        brandVoiceScore REAL,
+        uniquenessScore REAL,
+        keywordOptimization REAL,
+        overallScore REAL,
+        recommendations TEXT,
+        lastCalculated DATETIME NOT NULL,
+        FOREIGN KEY (productId) REFERENCES products (id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS trend_analysis (
+        id TEXT PRIMARY KEY,
+        productId TEXT NOT NULL,
+        metric TEXT NOT NULL,
+        timeframe TEXT NOT NULL,
+        data TEXT,
+        trend TEXT,
+        changePercentage REAL,
+        correlation REAL,
+        lastUpdated DATETIME NOT NULL,
+        FOREIGN KEY (productId) REFERENCES products (id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS optimization_rules (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        category TEXT,
+        conditions TEXT,
+        actions TEXT,
+        schedule TEXT,
+        isActive BOOLEAN,
+        priority INTEGER,
+        lastRun DATETIME,
+        nextRun DATETIME,
+        performance TEXT,
+        createdAt DATETIME NOT NULL,
+        updatedAt DATETIME NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS customer_segments (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        criteria TEXT,
+        customerCount INTEGER DEFAULT 0,
+        avgOrderValue REAL,
+        createdAt DATETIME NOT NULL,
+        updatedAt DATETIME NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS customer_journeys (
+        id TEXT PRIMARY KEY,
+        customerId TEXT NOT NULL,
+        journeyStage TEXT NOT NULL,
+        score REAL DEFAULT 0,
+        progress REAL DEFAULT 0,
+        entryPoint TEXT,
+        currentStep TEXT,
+        nextStep TEXT,
+        metadata TEXT,
+        createdAt DATETIME NOT NULL,
+        updatedAt DATETIME NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS ab_tests (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        type TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'draft',
+        variants TEXT,
+        metrics TEXT,
+        startDate DATETIME,
+        endDate DATETIME,
+        results TEXT,
+        createdAt DATETIME NOT NULL,
+        updatedAt DATETIME NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS realtime_analytics (
+        id TEXT PRIMARY KEY,
+        customerId TEXT,
+        productId TEXT,
+        action TEXT NOT NULL,
+        category TEXT,
+        metadata TEXT,
+        timestamp DATETIME NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS content_performance (
+        id TEXT PRIMARY KEY,
+        productId TEXT NOT NULL,
+        contentType TEXT NOT NULL,
+        views INTEGER DEFAULT 0,
+        engagement REAL DEFAULT 0,
+        conversions INTEGER DEFAULT 0,
+        revenue REAL DEFAULT 0,
+        date DATETIME NOT NULL,
+        createdAt DATETIME NOT NULL,
+        FOREIGN KEY (productId) REFERENCES products (id) ON DELETE CASCADE
       )`
     ];
 

@@ -36,7 +36,7 @@ const AutomationRules: React.FC = () => {
     rules,
     templates,
     workflows,
-    approvals,
+    pendingApprovals,
     loading,
     error,
     filters,
@@ -238,7 +238,7 @@ const AutomationRules: React.FC = () => {
     return matchesSearch && matchesCategory && matchesStatus
   })
 
-  const pendingApprovalsCount = approvals.filter(a => a.status === 'pending').length
+  const pendingApprovalsCount = pendingApprovals.filter(a => a.status === 'pending').length
 
   const tabs = [
     { id: 'rules', label: 'Rules', icon: Settings, count: rules.length },
@@ -638,14 +638,28 @@ const AutomationRules: React.FC = () => {
 
       {activeTab === 'templates' && (
         <RuleTemplates
-          onSelectTemplate={(template) => {
+          templates={templates}
+          onSelect={(template) => {
             // Handle template selection
             console.log('Selected template:', template)
           }}
           onCreateRuleFromTemplate={async (templateId) => {
-            const newRule = useAutomationStore.getState().createRuleFromTemplate(templateId)
-            setShowBuilder(true)
-            setBuilderState(newRule)
+            // Find the template and create a new rule from it
+            const template = templates.find(t => t.id === templateId)
+            if (template) {
+              const newRule = {
+                name: template.name,
+                description: template.description,
+                category: template.category,
+                conditions: [...template.conditions],
+                actions: [...template.actions],
+                schedule: { ...template.schedule },
+                isActive: true,
+                priority: 5
+              }
+              setBuilderState(newRule)
+              setShowBuilder(true)
+            }
           }}
         />
       )}
@@ -720,11 +734,29 @@ const AutomationRules: React.FC = () => {
       )}
 
       {activeTab === 'performance' && (
-        <RulePerformance rules={rules} />
+        <RulePerformance performance={rules.map(rule => rule.performance)} />
       )}
 
       {activeTab === 'approvals' && (
-        <ApprovalQueue />
+        <ApprovalQueue
+          approvals={pendingApprovals}
+          onApprove={(id) => {
+            console.log('Approved:', id)
+            // Mock approval - update status to approved
+            const updatedApprovals = pendingApprovals.map(a =>
+              a.id === id ? { ...a, status: 'approved' } : a
+            )
+            // This would need a proper store update function
+          }}
+          onReject={(id, reason) => {
+            console.log('Rejected:', id, reason)
+            // Mock rejection - update status to rejected
+            const updatedApprovals = pendingApprovals.map(a =>
+              a.id === id ? { ...a, status: 'rejected', rejectionReason: reason } : a
+            )
+            // This would need a proper store update function
+          }}
+        />
       )}
     </div>
   )

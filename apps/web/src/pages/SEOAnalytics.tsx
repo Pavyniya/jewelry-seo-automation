@@ -239,9 +239,9 @@ const SEOAnalytics: React.FC = () => {
                         </div>
 
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Conversion Rate</span>
+                          <span className="text-sm text-gray-600">Average Position</span>
                           <span className="text-sm font-medium text-gray-900">
-                            {performance.conversionRate.toFixed(1)}%
+                            #{performance.position.toFixed(1)}
                           </span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -249,9 +249,9 @@ const SEOAnalytics: React.FC = () => {
                         </div>
 
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Revenue Impact</span>
+                          <span className="text-sm text-gray-600">Total Clicks</span>
                           <span className="text-sm font-medium text-gray-900">
-                            ${performance.revenue.toLocaleString()}
+                            {performance.clicks.toLocaleString()}
                           </span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">

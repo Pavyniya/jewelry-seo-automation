@@ -1,0 +1,168 @@
+name: Performance Testing
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3 AM
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  performance-benchmark:
+    name: Performance Benchmark
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build API
+        run: pnpm --filter @jewelry-seo/api build
+
+      - name: Start API server
+        run: |
+          PORT=3001 DATABASE_URL=./test.sqlite node apps/api/dist/server.js &
+          sleep 10
+
+      - name: Run API performance tests
+        run: pnpm --filter @jewelry-seo/performance test:api
+        env:
+          BASE_URL: http://localhost:3001
+
+      - name: Run load tests
+        run: pnpm --filter @jewelry-seo/performance test:load
+        env:
+          BASE_URL: http://localhost:3001
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: apps/performance/results/
+
+      - name: Generate performance report
+        run: |
+          # Generate performance summary
+          echo "# Performance Test Results" > performance-report.md
+          echo "Generated on: $(date)" >> performance-report.md
+          echo "" >> performance-report.md
+          echo "## API Performance" >> performance-report.md
+          echo "API response times and throughput metrics" >> performance-report.md
+          echo "" >> performance-report.md
+          echo "## Load Testing" >> performance-report.md
+          echo "Concurrency and scalability results" >> performance-report.md
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-report
+          path: performance-report.md
+
+  frontend-performance:
+    name: Frontend Performance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build web application
+        run: pnpm --filter @jewelry-seo/web build
+
+      - name: Start web server
+        run: |
+          cd apps/web/dist && python3 -m http.server 4000 &
+          sleep 5
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './.github/lighthouse-config.json'
+          urls: |
+            http://localhost:4000/
+            http://localhost:4000/products
+            http://localhost:4000/analytics
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-results
+          path: lighthouse-results/
+
+  bundle-analysis:
+    name: Bundle Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build applications
+        run: |
+          pnpm --filter @jewelry-seo/api build
+          pnpm --filter @jewelry-seo/web build
+
+      - name: Analyze bundle sizes
+        run: |
+          # Analyze API bundle
+          echo "## API Bundle Analysis" > bundle-analysis.md
+          echo "\`\`\`" >> bundle-analysis.md
+          ls -la apps/api/dist/ >> bundle-analysis.md
+          echo "\`\`\`" >> bundle-analysis.md
+
+          # Analyze web bundle
+          echo "## Web Bundle Analysis" >> bundle-analysis.md
+          echo "\`\`\`" >> bundle-analysis.md
+          ls -la apps/web/dist/ >> bundle-analysis.md
+          echo "\`\`\`" >> bundle-analysis.md
+
+      - name: Upload bundle analysis
+        uses: actions/upload-artifact@v3
+        with:
+          name: bundle-analysis
+          path: bundle-analysis.md
+
+      - name: Check bundle size thresholds
+        run: |
+          # Add bundle size checking logic here
+          echo "Checking bundle size thresholds..."
+          if [ -f "apps/web/dist/assets/index-*.js" ]; then
+            bundle_size=$(stat -c%s apps/web/dist/assets/index-*.js)
+            echo "Web bundle size: $bundle_size bytes"
+            if [ $bundle_size -gt 1048576 ]; then  # 1MB
+              echo "Warning: Web bundle exceeds 1MB"
+            fi
+          fi
