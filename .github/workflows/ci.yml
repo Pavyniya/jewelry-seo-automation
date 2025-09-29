@@ -170,7 +170,7 @@ jobs:
           BASE_URL: http://localhost:3001
 
       - name: Upload performance results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-results
           path: apps/performance/results/
@@ -200,7 +200,7 @@ jobs:
         run: pnpm --filter @jewelry-seo/security test
 
       - name: Upload security report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-report
           path: security-report-*.json
@@ -237,7 +237,7 @@ jobs:
         run: pnpm --filter @jewelry-seo/performance build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |

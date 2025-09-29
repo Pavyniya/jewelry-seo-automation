@@ -41,7 +41,7 @@ jobs:
         run: pnpm --filter @jewelry-seo/security test
 
       - name: Upload security report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-audit-report
           path: security-report-*.json
@@ -82,7 +82,7 @@ jobs:
           report-path: gitleaks-report.json
 
       - name: Upload Gitleaks report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gitleaks-report
           path: gitleaks-report.json
@@ -118,7 +118,7 @@ jobs:
           npm audit --json > audit-report.json
 
       - name: Upload dependency reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dependency-reports
           path: |

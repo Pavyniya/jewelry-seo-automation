@@ -48,7 +48,7 @@ jobs:
           BASE_URL: http://localhost:3001
 
       - name: Upload performance results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-results
           path: apps/performance/results/
@@ -66,7 +66,7 @@ jobs:
           echo "Concurrency and scalability results" >> performance-report.md
 
       - name: Upload performance report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-report
           path: performance-report.md
@@ -108,7 +108,7 @@ jobs:
           temporaryPublicStorage: true
 
       - name: Upload Lighthouse results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lighthouse-results
           path: lighthouse-results/
@@ -150,7 +150,7 @@ jobs:
           echo "\`\`\`" >> bundle-analysis.md
 
       - name: Upload bundle analysis
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bundle-analysis
           path: bundle-analysis.md
