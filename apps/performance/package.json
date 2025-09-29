@@ -1,0 +1,24 @@
+{
+  "name": "@jewelry-seo/performance",
+  "version": "1.0.0",
+  "description": "Performance testing tools and utilities",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:api": "node api-benchmark.js",
+    "test:load": "node load-test.js",
+    "test:frontend": "node frontend-performance.js"
+  },
+  "dependencies": {
+    "k6": "^0.49.0",
+    "lighthouse": "^12.2.1",
+    "autocannon": "^7.15.0",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
