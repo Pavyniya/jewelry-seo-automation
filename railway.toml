@@ -1,0 +1,153 @@
+# Railway Configuration
+[build]
+command = "pnpm build && pnpm --filter @jewelry-seo/api build"
+
+[deploy]
+startCommand = "pnpm start:api"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+# Environment-specific configurations
+[env]
+NODE_ENV = "production"
+PORT = "3000"
+
+# Database
+DATABASE_URL = "${{DATABASE_URL}}"
+DATABASE_SSL = "true"
+
+# Shopify Configuration
+SHOPIFY_API_KEY = "${{SHOPIFY_API_KEY}}"
+SHOPIFY_API_SECRET = "${{SHOPIFY_API_SECRET}}"
+SHOPIFY_ACCESS_TOKEN = "${{SHOPIFY_ACCESS_TOKEN}}"
+SHOPIFY_STORE_NAME = "${{SHOPIFY_STORE_NAME}}"
+
+# AI Providers
+OPENAI_API_KEY = "${{OPENAI_API_KEY}}"
+ANTHROPIC_API_KEY = "${{ANTHROPIC_API_KEY}}"
+
+# Security
+JWT_SECRET = "${{JWT_SECRET}}"
+SESSION_SECRET = "${{SESSION_SECRET}}"
+
+# Monitoring
+SENTRY_DSN = "${{SENTRY_DSN}}"
+NEW_RELIC_LICENSE_KEY = "${{NEW_RELIC_LICENSE_KEY}}"
+
+# Services
+[[services]]
+name = "api"
+env = "NODE_ENV"
+startCommand = "pnpm start:api"
+port = 3000
+
+[[services]]
+name = "web"
+env = "NODE_ENV"
+startCommand = "pnpm start:web"
+port = 4000
+
+# Build configurations
+[build.env]
+NODE_ENV = "production"
+
+# Service definitions
+[service.api]
+memory = "512MB"
+cpu = "0.25"
+count = 1
+
+[service.web]
+memory = "512MB"
+cpu = "0.25"
+count = 1
+
+# Production scaling
+[service.api.production]
+memory = "1GB"
+cpu = "0.5"
+count = 2
+autoscaling = true
+minCount = 2
+maxCount = 10
+
+[service.web.production]
+memory = "1GB"
+cpu = "0.5"
+count = 2
+autoscaling = true
+minCount = 2
+maxCount = 10
+
+# Staging scaling
+[service.api.staging]
+memory = "512MB"
+cpu = "0.25"
+count = 1
+autoscaling = true
+minCount = 1
+maxCount = 3
+
+[service.web.staging]
+memory = "512MB"
+cpu = "0.25"
+count = 1
+autoscaling = true
+minCount = 1
+maxCount = 3
+
+# Development scaling
+[service.api.dev]
+memory = "256MB"
+cpu = "0.125"
+count = 1
+autoscaling = false
+
+[service.web.dev]
+memory = "256MB"
+cpu = "0.125"
+count = 1
+autoscaling = false
+
+# Storage volumes
+[volumes.data]
+mountPath = "/data"
+size = "1GB"
+
+[volumes.uploads]
+mountPath = "/uploads"
+size = "5GB"
+
+# Cron jobs
+[crons.db_backup]
+schedule = "0 2 * * *"
+command = "pnpm db:backup"
+
+[crons.cache_clear]
+schedule = "0 3 * * *"
+command = "pnpm cache:clear"
+
+[crons.analytics_update]
+schedule = "0 */6 * * *"
+command = "pnpm analytics:update"
+
+# Metrics and monitoring
+[metrics]
+enabled = true
+port = 9090
+path = "/metrics"
+
+# Health check configuration
+[healthcheck]
+path = "/health"
+interval = 30
+timeout = 10
+retries = 3
+
+# Domain configuration
+[domains]
+production = ["ohhglam.com", "www.ohhglam.com"]
+staging = ["staging.ohhglam.com"]
+development = ["dev.ohhglam.com"]
