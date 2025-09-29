@@ -29,7 +29,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 8.15.0
 
       - name: Get pnpm store directory
         shell: bash
@@ -55,6 +55,8 @@ jobs:
           PORT=3001 DATABASE_URL=./test.sqlite node apps/api/dist/server.js &
           sleep 10
 
+      - name: Create results directory
+        run: mkdir -p apps/performance/results
       - name: Run API performance tests
         run: pnpm --filter @jewelry-seo/performance test:api
         env:
@@ -72,7 +74,10 @@ jobs:
         if: always()
         with:
           name: performance-results
-          path: apps/performance/results/
+          path: |
+            apps/performance/results/
+            performance-results/
+            !apps/performance/results/node_modules/
 
       - name: Generate performance report
         if: always()
@@ -110,7 +115,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 8.15.0
 
       - name: Get pnpm store directory
         shell: bash
@@ -152,7 +157,9 @@ jobs:
         if: always()
         with:
           name: lighthouse-results
-          path: lighthouse-results/
+          path: |
+            lighthouse-results/
+            .lighthouseci/
 
   bundle-analysis:
     name: Bundle Analysis
@@ -170,7 +177,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 8.15.0
 
       - name: Get pnpm store directory
         shell: bash
@@ -193,6 +200,8 @@ jobs:
           pnpm --filter @jewelry-seo/api build
           pnpm --filter @jewelry-seo/web build
 
+      - name: Create bundle analysis directory
+        run: mkdir -p bundle-sizes
       - name: Analyze bundle sizes
         run: |
           # Analyze API bundle
@@ -201,18 +210,26 @@ jobs:
           ls -la apps/api/dist/ >> bundle-analysis.md
           echo "\`\`\`" >> bundle-analysis.md
 
+          # Create detailed bundle size report
+          apps/api/dist >> bundle-sizes/api-bundle.txt 2>/dev/null || echo "No API bundle found" > bundle-sizes/api-bundle.txt
+
           # Analyze web bundle
           echo "## Web Bundle Analysis" >> bundle-analysis.md
           echo "\`\`\`" >> bundle-analysis.md
           ls -la apps/web/dist/ >> bundle-analysis.md
           echo "\`\`\`" >> bundle-analysis.md
 
+          # Create detailed web bundle report
+          find apps/web/dist -name "*.js" -exec ls -la {} \; > bundle-sizes/web-bundle.txt 2>/dev/null || echo "No web bundle found" > bundle-sizes/web-bundle.txt
+
       - name: Upload bundle analysis
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: bundle-analysis
-          path: bundle-analysis.md
+          path: |
+            bundle-analysis.md
+            bundle-sizes/
 
       - name: Check bundle size thresholds
         run: |
