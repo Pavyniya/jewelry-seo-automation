@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Jewelry SEO Automation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      background-color: #f9fafb;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background-color: #fef3c7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon svg {
+      width: 48px;
+      height: 48px;
+      color: #f59e0b;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .primary {
+      background-color: #7c3aed;
+      color: white;
+    }
+
+    .primary:hover {
+      background-color: #6d28d9;
+    }
+
+    .secondary {
+      background-color: white;
+      color: #7c3aed;
+      border: 1px solid #e5e7eb;
+    }
+
+    .secondary:hover {
+      background-color: #f9fafb;
+    }
+
+    .cached-data {
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .cached-data h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .data-list {
+      background-color: white;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: left;
+    }
+
+    .data-item {
+      padding: 12px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .data-item:last-child {
+      border-bottom: none;
+    }
+
+    .data-item h3 {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .data-item p {
+      font-size: 12px;
+      color: #9ca3af;
+      margin: 0;
+    }
+
+    .badge {
+      background-color: #dbeafe;
+      color: #1e40af;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+
+    <h1>You're Offline</h1>
+    <p>Check your internet connection and try again. Some features may still be available.</p>
+
+    <div class="buttons">
+      <button class="primary" onclick="window.location.reload()">
+        Try Again
+      </button>
+      <button class="secondary" onclick="window.history.back()">
+        Go Back
+      </button>
+    </div>
+
+    <div class="cached-data">
+      <h2>Available Offline</h2>
+      <div class="data-list">
+        <div class="data-item">
+          <div>
+            <h3>Product Catalog</h3>
+            <p>Last synced 2 hours ago</p>
+          </div>
+          <span class="badge">1,234 items</span>
+        </div>
+        <div class="data-item">
+          <div>
+            <h3>Analytics Summary</h3>
+            <p>Last synced 30 minutes ago</p>
+          </div>
+          <span class="badge">Updated</span>
+        </div>
+        <div class="data-item">
+          <div>
+            <h3>Optimization Queue</h3>
+            <p>Last synced 5 minutes ago</p>
+          </div>
+          <span class="badge">23 tasks</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check if service worker is available
+    if ('serviceWorker' in navigator) {
+      // Check for online status
+      window.addEventListener('online', () => {
+        // Redirect to the current page when back online
+        window.location.reload();
+      });
+
+      // Sync data when coming back online
+      window.addEventListener('online', () => {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.sync.register('sync-failed-requests');
+          });
+        }
+      });
+    }
+
+    // Show cached data if available
+    function showCachedData() {
+      // This would typically fetch from IndexedDB
+      console.log('Showing cached data...');
+    }
+
+    // Initialize
+    showCachedData();
+  </script>
+</body>
+</html>

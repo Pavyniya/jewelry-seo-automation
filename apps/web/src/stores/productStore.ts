@@ -43,6 +43,7 @@ interface ProductState {
   setSortOrder: (sortOrder: 'asc' | 'desc') => void;
   fetchProducts: () => Promise<void>;
   syncProducts: () => Promise<void>;
+  optimizeProduct: (productId: string) => Promise<any>;
   getFilteredProducts: () => Product[];
   getPaginatedFilteredProducts: () => Product[]; // Get filtered products for current page
   getFilteredCount: () => number; // Get total count of filtered products
@@ -86,6 +87,75 @@ export const useProductStore = create<ProductState>((set, get) => ({
   setCurrentPage: (page) => set({ currentPage: page }),
   setSortBy: (sortBy) => set({ sortBy }),
   setSortOrder: (sortOrder) => set({ sortOrder }),
+  
+  // SEO Optimization function
+  optimizeProduct: async (productId: string) => {
+    try {
+      set({ loading: true, error: null });
+      
+      const response = await fetch(`/api/v1/products/${productId}/generate-seo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update the product in both allProducts and products arrays
+        const { allProducts, products } = get();
+        
+        const updatedAllProducts = allProducts.map(p => 
+          p.id === productId 
+            ? { 
+                ...p, 
+                seoTitle: data.data.seoTitle,
+                seoDescription: data.data.seoDescription,
+                optimizedDescription: data.data.optimizedDescription,
+                status: 'needs_review',
+                lastOptimized: new Date().toISOString().split('T')[0]
+              }
+            : p
+        );
+        
+        const updatedProducts = products.map(p => 
+          p.id === productId 
+            ? { 
+                ...p, 
+                seoTitle: data.data.seoTitle,
+                seoDescription: data.data.seoDescription,
+                optimizedDescription: data.data.optimizedDescription,
+                status: 'needs_review',
+                lastOptimized: new Date().toISOString().split('T')[0]
+              }
+            : p
+        );
+
+        set({ 
+          allProducts: updatedAllProducts, 
+          products: updatedProducts, 
+          loading: false 
+        });
+        
+        return data.data;
+      } else {
+        throw new Error(data.error || 'Failed to optimize product');
+      }
+    } catch (error) {
+      console.error('Error optimizing product:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to optimize product', 
+        loading: false 
+      });
+      throw error;
+    }
+  },
+
   fetchProducts: async () => {
     try {
       set({ loading: true, error: null });

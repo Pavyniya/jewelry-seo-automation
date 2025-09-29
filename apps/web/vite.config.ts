@@ -5,6 +5,7 @@ import { splitVendorChunkPlugin } from 'vite'
 import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
+  publicDir: 'public',
   plugins: [
     react(),
     splitVendorChunkPlugin(),
@@ -45,15 +46,41 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          ui: ['@headlessui/react', '@heroicons/react'],
-          state: ['zustand'],
-          query: ['@tanstack/react-query'],
-          utils: ['axios', 'zod', 'clsx'],
-          charts: ['recharts', 'd3'],
-          forms: ['react-hook-form', '@hookform/resolvers'],
+        // More granular code splitting
+        manualChunks: (id) => {
+          // Core vendor chunks
+          if (id.includes('node_modules/react')) return 'react-vendor'
+          if (id.includes('node_modules/react-router-dom')) return 'router-vendor'
+          if (id.includes('node_modules/@headlessui') || id.includes('node_modules/@heroicons')) return 'ui-vendor'
+          if (id.includes('node_modules/zustand')) return 'state-vendor'
+          if (id.includes('node_modules/@tanstack/react-query')) return 'query-vendor'
+          if (id.includes('node_modules/axios') || id.includes('node_modules/zod') || id.includes('node_modules/clsx')) return 'utils-vendor'
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3')) return 'charts-vendor'
+          if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/@hookform')) return 'forms-vendor'
+
+          // Feature-based chunks
+          if (id.includes('/pages/')) {
+            const pageMatch = id.match(/\/pages\/([^\/]+)/)
+            if (pageMatch) {
+              const pageName = pageMatch[1]
+              return `page-${pageName}`
+            }
+          }
+
+          if (id.includes('/components/ui/')) {
+            return 'ui-components'
+          }
+
+          if (id.includes('/hooks/')) {
+            return 'hooks'
+          }
+
+          // Default chunk for other modules
+          if (id.includes('node_modules')) {
+            return 'vendor'
+          }
+
+          return 'app'
         },
         assetFileNames: 'assets/[name].[hash][extname]',
         chunkFileNames: 'chunks/[name].[hash].js',

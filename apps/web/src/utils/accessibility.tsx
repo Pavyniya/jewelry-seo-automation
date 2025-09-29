@@ -201,7 +201,7 @@ export const Keyboard = {
       Keys.END,
       Keys.PAGE_UP,
       Keys.PAGE_DOWN,
-    ].includes(event.key)
+    ].includes(event.key as any)
   },
 
   isEscapeKey(event: React.KeyboardEvent): boolean {
@@ -348,3 +348,89 @@ export function generateId(prefix: string = 'id'): string {
 }
 
 // Accessible component patterns are available as separate components in the components directory
+
+// Skip link component for keyboard navigation
+export function SkipLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-md shadow-lg text-primary-600 dark:text-primary-400 z-50"
+    >
+      {children}
+    </a>
+  )
+}
+
+// Visually hidden utility for screen readers
+export function VisuallyHidden({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="sr-only">
+      {children}
+    </span>
+  )
+}
+
+// Landmark regions utility
+export const LandmarkRegions = {
+  MAIN: 'main',
+  NAVIGATION: 'navigation',
+  COMPLEMENTARY: 'complementary',
+  CONTENTINFO: 'contentinfo',
+  BANNER: 'banner',
+  SEARCH: 'search',
+  FORM: 'form',
+  REGION: 'region',
+} as const
+
+// Focus visible detection
+export function useFocusVisible(): boolean {
+  const [isFocusVisible, setIsFocusVisible] = React.useState(false)
+
+  React.useEffect(() => {
+    const handleKeyDown = () => setIsFocusVisible(true)
+    const handleMouseDown = () => setIsFocusVisible(false)
+
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('mousedown', handleMouseDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('mousedown', handleMouseDown)
+    }
+  }, [])
+
+  return isFocusVisible
+}
+
+// Auto-hide announcements
+export function useAutoAnnounce(message: string, duration: number = 3000) {
+  const { announce, clear } = useAnnouncement()
+
+  React.useEffect(() => {
+    if (message) {
+      announce(message)
+      const timer = setTimeout(() => clear(), duration)
+      return () => clearTimeout(timer)
+    }
+  }, [message, duration, announce, clear])
+}
+
+// Form validation utilities
+export const FormValidation = {
+  announceError: (fieldName: string, errorMessage: string) => {
+    Announcer.announce(`${fieldName} field has error: ${errorMessage}`, 'assertive')
+  },
+
+  announceSuccess: (fieldName: string) => {
+    Announcer.announce(`${fieldName} field is valid`, 'polite')
+  },
+
+  getAriaInvalid: (hasError: boolean) => hasError ? true : undefined,
+
+  getAriaDescribedBy: (errorId?: string, helpTextId?: string) => {
+    const ids = []
+    if (errorId) ids.push(errorId)
+    if (helpTextId) ids.push(helpTextId)
+    return ids.length > 0 ? ids.join(' ') : undefined
+  },
+}

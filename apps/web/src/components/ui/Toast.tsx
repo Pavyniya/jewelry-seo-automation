@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react'
+import React, { useEffect, useState, useCallback } from 'react'
+import { X, CheckCircle, AlertCircle, AlertTriangle, Info, Loader2 } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { Announcer, generateId } from '@/utils/accessibility'
 
-export type ToastType = 'success' | 'error' | 'warning' | 'info'
+export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'loading'
 
 interface ToastProps {
   id?: string
@@ -24,36 +24,44 @@ const ToastIcons = {
   error: AlertCircle,
   warning: AlertTriangle,
   info: Info,
+  loading: Loader2,
 }
 
 const ToastColors = {
   success: {
-    bg: 'bg-green-50 dark:bg-green-900/20',
-    border: 'border-green-200 dark:border-green-800',
-    icon: 'text-green-600 dark:text-green-400',
-    title: 'text-green-900 dark:text-green-100',
-    description: 'text-green-700 dark:text-green-300',
+    bg: 'bg-emerald-50 dark:bg-emerald-950/20',
+    border: 'border-emerald-200 dark:border-emerald-800',
+    icon: 'text-emerald-600 dark:text-emerald-400',
+    title: 'text-emerald-900 dark:text-emerald-100',
+    description: 'text-emerald-700 dark:text-emerald-300',
   },
   error: {
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    border: 'border-red-200 dark:border-red-800',
-    icon: 'text-red-600 dark:text-red-400',
-    title: 'text-red-900 dark:text-red-100',
-    description: 'text-red-700 dark:text-red-300',
+    bg: 'bg-rose-50 dark:bg-rose-950/20',
+    border: 'border-rose-200 dark:border-rose-800',
+    icon: 'text-rose-600 dark:text-rose-400',
+    title: 'text-rose-900 dark:text-rose-100',
+    description: 'text-rose-700 dark:text-rose-300',
   },
   warning: {
-    bg: 'bg-yellow-50 dark:bg-yellow-900/20',
-    border: 'border-yellow-200 dark:border-yellow-800',
-    icon: 'text-yellow-600 dark:text-yellow-400',
-    title: 'text-yellow-900 dark:text-yellow-100',
-    description: 'text-yellow-700 dark:text-yellow-300',
+    bg: 'bg-amber-50 dark:bg-amber-950/20',
+    border: 'border-amber-200 dark:border-amber-800',
+    icon: 'text-amber-600 dark:text-amber-400',
+    title: 'text-amber-900 dark:text-amber-100',
+    description: 'text-amber-700 dark:text-amber-300',
   },
   info: {
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
+    bg: 'bg-blue-50 dark:bg-blue-950/20',
     border: 'border-blue-200 dark:border-blue-800',
     icon: 'text-blue-600 dark:text-blue-400',
     title: 'text-blue-900 dark:text-blue-100',
     description: 'text-blue-700 dark:text-blue-300',
+  },
+  loading: {
+    bg: 'bg-gray-50 dark:bg-gray-900/20',
+    border: 'border-gray-200 dark:border-gray-800',
+    icon: 'text-gray-600 dark:text-gray-400',
+    title: 'text-gray-900 dark:text-gray-100',
+    description: 'text-gray-700 dark:text-gray-300',
   },
 }
 
@@ -73,10 +81,20 @@ export const Toast: React.FC<ToastProps> = ({
   const Icon = ToastIcons[type]
   const colors = ToastColors[type]
 
+  const handleClose = useCallback(() => {
+    setIsVisible(false)
+    onClose?.()
+
+    // Announce removal to screen readers
+    setTimeout(() => {
+      Announcer.announce('Toast notification dismissed', 'polite')
+    }, 100)
+  }, [onClose])
+
   useEffect(() => {
     if (duration <= 0) return
 
-    let timer: number
+    let timer: NodeJS.Timeout
 
     if (!isPaused && timeLeft > 0) {
       timer = setTimeout(() => {
@@ -93,16 +111,6 @@ export const Toast: React.FC<ToastProps> = ({
     // Announce to screen readers
     Announcer.announce(`${title}${description ? `: ${description}` : ''}`, 'polite')
   }, [title, description])
-
-  const handleClose = () => {
-    setIsVisible(false)
-    onClose?.()
-
-    // Announce removal to screen readers
-    setTimeout(() => {
-      Announcer.announce('Toast notification dismissed', 'polite')
-    }, 100)
-  }
 
   const handlePause = () => {
     setIsPaused(true)
@@ -121,6 +129,7 @@ export const Toast: React.FC<ToastProps> = ({
       aria-atomic="true"
       className={cn(
         'w-full max-w-sm rounded-lg border p-4 shadow-lg transition-all duration-300',
+        'animate-slide-in-right',
         colors.bg,
         colors.border,
         className
@@ -133,7 +142,12 @@ export const Toast: React.FC<ToastProps> = ({
     >
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
-          <Icon className={cn('h-5 w-5', colors.icon)} aria-hidden="true" />
+          <Icon
+            className={cn('h-5 w-5', colors.icon, {
+              'animate-spin': type === 'loading'
+            })}
+            aria-hidden="true"
+          />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -303,5 +317,72 @@ export const useToast = () => {
   if (!context) {
     throw new Error('useToast must be used within a ToastProvider')
   }
-  return context
+
+  const { showToast, removeToast, clearAllToasts } = context
+
+  const toast = useCallback((props: Omit<ToastProps, 'id'>) => showToast(props), [showToast])
+  const success = useCallback((props: Omit<ToastProps, 'id' | 'type'>) =>
+    showToast({ ...props, type: 'success' }), [showToast])
+  const error = useCallback((props: Omit<ToastProps, 'id' | 'type'>) =>
+    showToast({ ...props, type: 'error' }), [showToast])
+  const warning = useCallback((props: Omit<ToastProps, 'id' | 'type'>) =>
+    showToast({ ...props, type: 'warning' }), [showToast])
+  const info = useCallback((props: Omit<ToastProps, 'id' | 'type'>) =>
+    showToast({ ...props, type: 'info' }), [showToast])
+  const loading = useCallback((props: Omit<ToastProps, 'id' | 'type'>) =>
+    showToast({ ...props, type: 'loading', duration: 0 }), [showToast])
+
+  const update = useCallback((id: string, props: Partial<ToastProps>) => {
+    // This would require updating the context to support updates
+    // For now, we'll just remove and show a new one
+    removeToast(id)
+    return showToast({ ...props, id } as ToastProps)
+  }, [removeToast, showToast])
+
+  const dismiss = useCallback((id: string) => removeToast(id), [removeToast])
+  const dismissAll = useCallback(() => clearAllToasts(), [clearAllToasts])
+
+  return {
+    toast,
+    success,
+    error,
+    warning,
+    info,
+    loading,
+    update,
+    dismiss,
+    dismissAll,
+  }
+}
+
+// Toast variants for common use cases
+export const toastVariants = {
+  success: (title: string, description?: string) => ({ type: 'success' as const, title, description }),
+  error: (title: string, description?: string) => ({ type: 'error' as const, title, description }),
+  warning: (title: string, description?: string) => ({ type: 'warning' as const, title, description }),
+  info: (title: string, description?: string) => ({ type: 'info' as const, title, description }),
+  loading: (title: string, description?: string) => ({ type: 'loading' as const, title, description, duration: 0 }),
+}
+
+// Promise-based toast helper
+export const promiseToast = async function promiseToast<T>(
+  promise: Promise<T>,
+  loading: { title: string; description?: string },
+  success: { title: string; description?: string } | ((result: T) => { title: string; description?: string }),
+  error: { title: string; description?: string } | ((error: Error) => { title: string; description?: string })
+): Promise<T> {
+  const { toast, update } = useToast()
+
+  const id = toast({ ...loading, type: 'loading', duration: 0 })
+
+  try {
+    const result = await promise
+    const successProps = typeof success === 'function' ? success(result) : success
+    update(id, { ...successProps, type: 'success', duration: 5000 })
+    return result
+  } catch (err) {
+    const errorProps = typeof error === 'function' ? error(err as Error) : error
+    update(id, { ...errorProps, type: 'error', duration: 5000 })
+    throw err
+  }
 }

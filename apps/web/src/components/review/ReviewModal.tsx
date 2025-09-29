@@ -22,6 +22,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const [currentView, setCurrentView] = useState<'overview' | 'comparison'>('overview')
   const [loading, setLoading] = useState(false)
   const [feedback, setFeedback] = useState('')
+  const [optimizedContent, setOptimizedContent] = useState<{
+    title: string;
+    description: string;
+    seoTitle: string;
+    seoDescription: string;
+  } | null>(null)
 
   const {
     contentDiffs,
@@ -40,19 +46,39 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       // Simulate API call to generate optimized content
       await new Promise(resolve => setTimeout(resolve, 1500))
 
-      // Mock optimized content based on product
-      const optimizedContent = {
-        title: `${product.title} | Fine Jewelry Collection`,
-        description: `${product.description}\n\n✨ **Premium Quality Features:**\n• Expertly crafted with attention to detail\n• Perfect for special occasions and everyday elegance\n• Timeless design that complements any style\n• Backed by our quality guarantee\n\n🎁 **Perfect Gift Choice:**\n• Ideal for anniversaries, birthdays, and celebrations\n• Comes in elegant gift packaging\n• Includes certificate of authenticity\n• 30-day return policy for your peace of mind`,
-        seoTitle: `${product.title} - Luxury Jewelry | Ohh Glam`,
-        seoDescription: `Discover our exquisite ${product.title.toLowerCase()}. Handcrafted with premium materials, perfect for making every moment special. Shop now with free shipping.`
+      // Call the actual SEO optimization API
+      const response = await fetch(`/api/v1/products/${product.id}/generate-seo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to generate SEO content');
+      }
+
+      const newOptimizedContent = {
+        title: result.data.seoTitle,
+        description: result.data.optimizedDescription || product.description,
+        seoTitle: result.data.seoTitle,
+        seoDescription: result.data.seoDescription
+      }
+
+      // Set the optimized content in state
+      setOptimizedContent(newOptimizedContent)
+
       // Calculate quality score
-      await calculateQualityScore(optimizedContent.description)
+      await calculateQualityScore(newOptimizedContent.description)
 
       // Generate content diffs
-      await getContentDiffs(product.description || '', optimizedContent.description)
+      await getContentDiffs(product.description || '', newOptimizedContent.description)
 
       setLoading(false)
     } catch (error) {
@@ -72,6 +98,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
     if (!isOpen) {
       setFeedback('')
       setCurrentView('overview')
+      setOptimizedContent(null)
       clearError()
     }
   }, [isOpen, clearError])
@@ -142,21 +169,22 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   const originalContent = {
     title: product.title,
-    description: product.body_html || '',
-    seoTitle: product.seoTitle,
-    seoDescription: product.seoDescription
+    description: product.body_html || product.description || '',
+    seoTitle: product.seoTitle || '',
+    seoDescription: product.seoDescription || ''
   }
 
-  const optimizedContent = {
-    title: `${product.title} | Fine Jewelry Collection`,
-    description: `${product.body_html || ''}\n\n✨ **Premium Quality Features:**\n• Expertly crafted with attention to detail\n• Perfect for special occasions and everyday elegance\n• Timeless design that complements any style\n• Backed by our quality guarantee\n\n🎁 **Perfect Gift Choice:**\n• Ideal for anniversaries, birthdays, and celebrations\n• Comes in elegant gift packaging\n• Includes certificate of authenticity\n• 30-day return policy for your peace of mind`,
-    seoTitle: `${product.title} - Luxury Jewelry | Ohh Glam`,
-    seoDescription: `Discover our exquisite ${product.title.toLowerCase()}. Handcrafted with premium materials, perfect for making every moment special. Shop now with free shipping.`
+  // Use the optimized content from API or fallback to original
+  const displayOptimizedContent = optimizedContent || {
+    title: product.title,
+    description: product.body_html || product.description || '',
+    seoTitle: '',
+    seoDescription: ''
   }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center gap-4">
@@ -216,7 +244,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto max-h-[calc(90vh-300px)]">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-6">
             {/* View Toggle */}
             <div className="flex gap-2 mb-6">
@@ -273,11 +301,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Title Length:</span>
-                          <span className="text-green-600">{optimizedContent.title.length} chars</span>
+                          <span className="text-green-600">{displayOptimizedContent.title.length} chars</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Description:</span>
-                          <span className="text-green-600">{optimizedContent.description.split(' ').length} words</span>
+                          <span className="text-green-600">{displayOptimizedContent.description.split(' ').length} words</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">SEO Score:</span>
@@ -331,7 +359,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             ) : (
               <ContentComparison
                 originalContent={originalContent}
-                optimizedContent={optimizedContent}
+                optimizedContent={displayOptimizedContent}
                 diffs={contentDiffs}
                 loading={loading}
               />

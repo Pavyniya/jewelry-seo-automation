@@ -14,14 +14,14 @@ import {
   Share2
 } from 'lucide-react'
 import { useProductStore } from '@/stores/productStore'
-import { ToastProvider, useToast } from '@/components/ui/Toast'
+import toast from 'react-hot-toast'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 
 const ProductDetailContent: React.FC = () => {
   const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
-  const { showToast } = useToast()
+  // Using react-hot-toast
   const {
     products,
     loading,
@@ -70,17 +70,9 @@ const ProductDetailContent: React.FC = () => {
 
     try {
       await optimizeProduct(product.id)
-      showToast({
-        type: 'success',
-        title: 'SEO Optimization Started',
-        description: 'Your product SEO optimization is in progress.'
-      })
+      toast.success('SEO optimization started')
     } catch (error) {
-      showToast({
-        type: 'error',
-        title: 'Optimization Failed',
-        description: 'Unable to start SEO optimization. Please try again.'
-      })
+      toast.error('Optimization failed: Unable to start SEO optimization. Please try again.')
     }
   }
 
@@ -89,11 +81,7 @@ const ProductDetailContent: React.FC = () => {
 
     const url = `${window.location.origin}/products/${product.id}`
     navigator.clipboard.writeText(url)
-    showToast({
-      type: 'success',
-      title: 'Link Copied',
-      description: 'Product link copied to clipboard.'
-    })
+    toast.success('Link Copied')
   }
 
   const getStatusColor = (status: string) => {

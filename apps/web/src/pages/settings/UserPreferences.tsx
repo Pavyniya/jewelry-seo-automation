@@ -13,7 +13,7 @@ import {
   Palette
 } from 'lucide-react'
 import { useUserPreferences } from '@/stores/userPreferencesStore'
-import { useToast } from '@/components/ui/Toast'
+import toast from 'react-hot-toast'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 
 interface TabProps {
@@ -53,7 +53,7 @@ const UserPreferencesContent: React.FC = () => {
     formatCurrency,
   } = useUserPreferences()
 
-  const { showToast } = useToast()
+  // Using react-hot-toast
   const [activeTab, setActiveTab] = useState('display')
   const [fileInputKey, setFileInputKey] = useState(0)
 
@@ -69,11 +69,7 @@ const UserPreferencesContent: React.FC = () => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
 
-    showToast({
-      type: 'success',
-      title: 'Preferences Exported',
-      description: 'Your preferences have been exported successfully.',
-    })
+    toast.success('Preferences exported successfully')
   }
 
   const handleImportPreferences = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,17 +82,9 @@ const UserPreferencesContent: React.FC = () => {
       const success = importPreferences(content)
 
       if (success) {
-        showToast({
-          type: 'success',
-          title: 'Preferences Imported',
-          description: 'Your preferences have been imported successfully.',
-        })
+        toast.success('Preferences imported successfully')
       } else {
-        showToast({
-          type: 'error',
-          title: 'Import Failed',
-          description: 'The preferences file is invalid or corrupted.',
-        })
+        toast.error('Import failed: The preferences file is invalid or corrupted')
       }
 
       // Reset file input to allow importing the same file again

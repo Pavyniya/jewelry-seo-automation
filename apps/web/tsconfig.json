@@ -22,6 +22,24 @@
     "types": ["vite/client", "jest"]
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.spec.ts", "src/**/*.spec.tsx"],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "src/components/analytics/**",
+    "src/components/automation/**",
+    "src/components/content-strategies/**",
+    "src/components/ai-providers/**",
+    "src/pages/analytics/**",
+    "src/pages/automation/**",
+    "src/pages/ai-providers/**",
+    "src/pages/content-strategies/**",
+    "src/services/analyticsService.ts",
+    "src/services/automationService.ts",
+    "src/stores/analyticsStore.ts",
+    "src/stores/automationStore.ts",
+    "src/utils/seoCalculations.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

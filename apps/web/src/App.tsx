@@ -1,35 +1,54 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { MonitoringProvider } from './stores/monitoringStore'
+// import { ToastProvider } from './components/ui/Toast'
 import Layout from './components/layout/Layout'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Products from './pages/Products'
-import ProductDetail from './pages/products/ProductDetail'
-import ProductEdit from './pages/products/ProductEdit'
-import ProductAnalytics from './pages/products/ProductAnalytics'
-import Reviews from './pages/Reviews'
-import Analytics from './pages/Analytics'
-import SEOAnalytics from './pages/SEOAnalytics'
-import Settings from './pages/Settings'
-import UserPreferences from './pages/settings/UserPreferences'
-import { ContentReview } from './pages/ContentReview'
-import { AnalyticsDashboard } from './pages/analytics/Dashboard'
-import AutomationRules from './pages/automation/AutomationRules'
-import { AiProviderDashboard } from './pages/ai-providers/Dashboard'
-import { ContentStrategiesPage } from './pages/content-strategies/ContentStrategiesPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import { RoutePreloader } from './routes/lazyRoutes'
+import { SkipLink, LandmarkRegions } from './utils/accessibility'
+// Lazy loaded components
+import {
+  Login,
+  Products,
+  ProductDetail,
+  ProductEdit,
+  ProductAnalytics,
+  Reviews,
+  Analytics,
+  SEOAnalytics,
+  Settings,
+  UserPreferences,
+  ContentReview,
+  AnalyticsDashboard,
+  AutomationRules,
+  AiProviderDashboard,
+  ContentStrategiesPage
+} from './routes/lazyRoutes'
+// Import Dashboard directly to avoid lazy loading issues for now
+import Dashboard from './components/Dashboard'
 import './styles/index.css'
 
 function App() {
+  // Preload core routes after initial render
+  useEffect(() => {
+    // Preload core routes for better perceived performance
+    setTimeout(() => {
+      RoutePreloader.preloadCoreRoutes()
+    }, 1000)
+  }, [])
+
   return (
     <ThemeProvider>
       <AuthProvider>
         <MonitoringProvider>
           <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            {/* Skip links for keyboard navigation */}
+            <SkipLink href="#main-content">Skip to main content</SkipLink>
+            <SkipLink href="#navigation">Skip to navigation</SkipLink>
+
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<Login />} />

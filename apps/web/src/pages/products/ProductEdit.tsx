@@ -13,14 +13,14 @@ import {
   Search
 } from 'lucide-react'
 import { useProductStore } from '@/stores/productStore'
-import { ToastProvider, useToast } from '@/components/ui/Toast'
+import toast from 'react-hot-toast'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 
 const ProductEditContent: React.FC = () => {
   const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
-  const { showToast } = useToast()
+  // Using react-hot-toast
   const {
     products,
     loading,
@@ -92,18 +92,10 @@ const ProductEditContent: React.FC = () => {
     setIsSaving(true)
     try {
       await updateProduct(product.id, formData)
-      showToast({
-        type: 'success',
-        title: 'Product Updated',
-        description: 'Your product changes have been saved successfully.'
-      })
+      toast.success('Product updated successfully')
       navigate(`/products/${productId}`)
     } catch (error) {
-      showToast({
-        type: 'error',
-        title: 'Update Failed',
-        description: 'Unable to save product changes. Please try again.'
-      })
+      toast.error('Update failed: Unable to save product changes. Please try again.')
     } finally {
       setIsSaving(false)
     }

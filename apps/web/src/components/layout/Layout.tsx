@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import { BreadcrumbNav } from '@/components/ui/Breadcrumb'
+import { LandmarkRegions } from '@/utils/accessibility'
 
 interface LayoutProps {
   children?: React.ReactNode
@@ -30,13 +31,18 @@ const Layout: React.FC<LayoutProps> = () => {
         <Header onMenuClick={() => setSidebarOpen(true)} />
 
         {/* Page content */}
-        <main className="flex-1">
+        <main
+          id="main-content"
+          role={LandmarkRegions.MAIN}
+          tabIndex={-1}
+          className="flex-1 outline-none"
+        >
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {/* Breadcrumb navigation */}
-              <div className="mb-6">
+              <nav aria-label="Breadcrumb" className="mb-6">
                 <BreadcrumbNav autoGenerate showHome={true} />
-              </div>
+              </nav>
 
               <Outlet />
             </div>
@@ -44,15 +50,18 @@ const Layout: React.FC<LayoutProps> = () => {
         </main>
 
         {/* Footer */}
-        <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4">
+        <footer
+          role={LandmarkRegions.CONTENTINFO}
+          className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4"
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
               <p>&copy; 2025 Ohh Glam. All rights reserved.</p>
-              <div className="flex space-x-4">
+              <nav aria-label="Footer links" className="flex space-x-4">
                 <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300">Privacy</a>
                 <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300">Terms</a>
                 <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300">Support</a>
-              </div>
+              </nav>
             </div>
           </div>
         </footer>
