@@ -170,14 +170,34 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const originalContent = {
     title: product.title,
     description: (product.description || '')
-      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/<h[1-6][^>]*>/gi, '\n\n') // Convert headers to double line breaks
+      .replace(/<\/h[1-6]>/gi, '\n') // Close headers with single line break
+      .replace(/<p[^>]*>/gi, '\n\n') // Convert paragraphs to double line breaks
+      .replace(/<\/p>/gi, '\n') // Close paragraphs with single line break
+      .replace(/<br\s*\/?>/gi, '\n') // Convert br tags to line breaks
+      .replace(/<li[^>]*>/gi, '\n• ') // Convert list items to bullet points
+      .replace(/<\/li>/gi, '') // Remove closing li tags
+      .replace(/<ul[^>]*>/gi, '\n') // Convert ul to line break
+      .replace(/<\/ul>/gi, '\n') // Close ul with line break
+      .replace(/<ol[^>]*>/gi, '\n') // Convert ol to line break
+      .replace(/<\/ol>/gi, '\n') // Close ol with line break
+      .replace(/<strong[^>]*>/gi, '**') // Convert strong to markdown bold
+      .replace(/<\/strong>/gi, '**') // Close strong with markdown bold
+      .replace(/<b[^>]*>/gi, '**') // Convert b to markdown bold
+      .replace(/<\/b>/gi, '**') // Close b with markdown bold
+      .replace(/<em[^>]*>/gi, '*') // Convert em to markdown italic
+      .replace(/<\/em>/gi, '*') // Close em with markdown italic
+      .replace(/<i[^>]*>/gi, '*') // Convert i to markdown italic
+      .replace(/<\/i>/gi, '*') // Close i with markdown italic
+      .replace(/<[^>]*>/g, '') // Remove any remaining HTML tags
       .replace(/&nbsp;/g, ' ') // Replace &nbsp; with spaces
       .replace(/&amp;/g, '&') // Replace &amp; with &
       .replace(/&lt;/g, '<') // Replace &lt; with <
       .replace(/&gt;/g, '>') // Replace &gt; with >
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .replace(/\n\s+/g, '\n') // Remove leading spaces from lines
-      .replace(/\s+\n/g, '\n') // Remove trailing spaces from lines
+      .replace(/\n\s*\n\s*\n/g, '\n\n') // Clean up multiple line breaks
+      .replace(/[ \t]+/g, ' ') // Normalize spaces and tabs
+      .replace(/\n /g, '\n') // Remove leading spaces from lines
+      .replace(/ \n/g, '\n') // Remove trailing spaces from lines
       .trim(),
     seoTitle: product.seoTitle || '',
     seoDescription: product.seoDescription || ''
@@ -187,14 +207,34 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const displayOptimizedContent = optimizedContent || {
     title: product.title,
     description: (product.description || '')
-      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/<h[1-6][^>]*>/gi, '\n\n') // Convert headers to double line breaks
+      .replace(/<\/h[1-6]>/gi, '\n') // Close headers with single line break
+      .replace(/<p[^>]*>/gi, '\n\n') // Convert paragraphs to double line breaks
+      .replace(/<\/p>/gi, '\n') // Close paragraphs with single line break
+      .replace(/<br\s*\/?>/gi, '\n') // Convert br tags to line breaks
+      .replace(/<li[^>]*>/gi, '\n• ') // Convert list items to bullet points
+      .replace(/<\/li>/gi, '') // Remove closing li tags
+      .replace(/<ul[^>]*>/gi, '\n') // Convert ul to line break
+      .replace(/<\/ul>/gi, '\n') // Close ul with line break
+      .replace(/<ol[^>]*>/gi, '\n') // Convert ol to line break
+      .replace(/<\/ol>/gi, '\n') // Close ol with line break
+      .replace(/<strong[^>]*>/gi, '**') // Convert strong to markdown bold
+      .replace(/<\/strong>/gi, '**') // Close strong with markdown bold
+      .replace(/<b[^>]*>/gi, '**') // Convert b to markdown bold
+      .replace(/<\/b>/gi, '**') // Close b with markdown bold
+      .replace(/<em[^>]*>/gi, '*') // Convert em to markdown italic
+      .replace(/<\/em>/gi, '*') // Close em with markdown italic
+      .replace(/<i[^>]*>/gi, '*') // Convert i to markdown italic
+      .replace(/<\/i>/gi, '*') // Close i with markdown italic
+      .replace(/<[^>]*>/g, '') // Remove any remaining HTML tags
       .replace(/&nbsp;/g, ' ') // Replace &nbsp; with spaces
       .replace(/&amp;/g, '&') // Replace &amp; with &
       .replace(/&lt;/g, '<') // Replace &lt; with <
       .replace(/&gt;/g, '>') // Replace &gt; with >
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .replace(/\n\s+/g, '\n') // Remove leading spaces from lines
-      .replace(/\s+\n/g, '\n') // Remove trailing spaces from lines
+      .replace(/\n\s*\n\s*\n/g, '\n\n') // Clean up multiple line breaks
+      .replace(/[ \t]+/g, ' ') // Normalize spaces and tabs
+      .replace(/\n /g, '\n') // Remove leading spaces from lines
+      .replace(/ \n/g, '\n') // Remove trailing spaces from lines
       .trim(),
     seoTitle: '',
     seoDescription: ''
