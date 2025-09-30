@@ -169,7 +169,16 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   const originalContent = {
     title: product.title,
-    description: product.description || '',
+    description: (product.description || '')
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/&nbsp;/g, ' ') // Replace &nbsp; with spaces
+      .replace(/&amp;/g, '&') // Replace &amp; with &
+      .replace(/&lt;/g, '<') // Replace &lt; with <
+      .replace(/&gt;/g, '>') // Replace &gt; with >
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .replace(/\n\s+/g, '\n') // Remove leading spaces from lines
+      .replace(/\s+\n/g, '\n') // Remove trailing spaces from lines
+      .trim(),
     seoTitle: product.seoTitle || '',
     seoDescription: product.seoDescription || ''
   }
@@ -177,7 +186,16 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   // Use the optimized content from API or fallback to original
   const displayOptimizedContent = optimizedContent || {
     title: product.title,
-    description: product.description || '',
+    description: (product.description || '')
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/&nbsp;/g, ' ') // Replace &nbsp; with spaces
+      .replace(/&amp;/g, '&') // Replace &amp; with &
+      .replace(/&lt;/g, '<') // Replace &lt; with <
+      .replace(/&gt;/g, '>') // Replace &gt; with >
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .replace(/\n\s+/g, '\n') // Remove leading spaces from lines
+      .replace(/\s+\n/g, '\n') // Remove trailing spaces from lines
+      .trim(),
     seoTitle: '',
     seoDescription: ''
   }
