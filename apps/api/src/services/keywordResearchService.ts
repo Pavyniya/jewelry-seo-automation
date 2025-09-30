@@ -464,43 +464,46 @@ export class KeywordResearchService {
     // Extract key specs from original description
     const specs = this.extractProductSpecs(originalDescription);
     
-    // OPTIMIZED SEO FORMAT - 250 words max with product name and keywords
+    // SCANNABLE SEO FORMAT - Short paragraphs, clear breaks, easy to read
     const lines: string[] = [];
     
-    // 1. EMOTIONAL HOOK WITH PRODUCT NAME - Compelling opening
-    const emotionalHook = this.generateProductNameHook(product, primaryKeyword, analysis);
+    // 1. COMPELLING HOOK - Short and impactful
+    const emotionalHook = this.generateScannableHook(product, primaryKeyword, analysis);
     lines.push(emotionalHook);
+    lines.push(''); // Empty line for breathing room
     
-    // 2. PRODUCT DESCRIPTION WITH NAME - Rich with keywords
-    const productDescription = this.generateProductNameDescription(product, analysis, specs);
-    lines.push('');
-    lines.push(productDescription);
+    // 2. PRODUCT OVERVIEW - Brief description
+    const productOverview = this.generateScannableOverview(product, analysis, specs);
+    lines.push(productOverview);
+    lines.push(''); // Empty line for breathing room
     
-    // 3. KEY BENEFITS - Essential benefits only
-    lines.push('');
+    // 3. KEY BENEFITS - Bullet points for easy scanning
     lines.push('**Why She\'ll Love This ' + product.title + ':**');
     const keyBenefits = this.generateKeyBenefits(product, analysis, specs);
     keyBenefits.forEach(benefit => lines.push(`• ${benefit}`));
+    lines.push(''); // Empty line for breathing room
     
-    // 4. OCCASION CONTENT - Concise occasion info
-    lines.push('');
-    const occasionContent = this.generateConciseOccasionContent(product, longTailKeywords, analysis);
-    lines.push(occasionContent);
+    // 4. PERFECT FOR - Occasion info in short format
+    lines.push('**Perfect For:**');
+    const occasionInfo = this.generateScannableOccasions(product, longTailKeywords, analysis);
+    lines.push(occasionInfo);
+    lines.push(''); // Empty line for breathing room
     
-    // 5. QUALITY ASSURANCE - Short quality promise
-    lines.push('');
-    const qualityContent = this.generateConciseQualityContent(product, specs, semanticKeywords, analysis);
-    lines.push(qualityContent);
+    // 5. QUALITY & CRAFTMANSHIP - Short quality promise
+    lines.push('**Quality & Craftsmanship:**');
+    const qualityInfo = this.generateScannableQuality(product, specs, semanticKeywords, analysis);
+    lines.push(qualityInfo);
+    lines.push(''); // Empty line for breathing room
     
     // 6. CALL TO ACTION - Simple and clear
-    lines.push('');
-    const commercialIntent = this.generateConciseCommercialIntent(product, primaryKeyword, analysis);
+    lines.push('**Order Today:**');
+    const commercialIntent = this.generateScannableCTA(product, primaryKeyword, analysis);
     lines.push(commercialIntent);
     
     // 7. SPECIFICATIONS - Technical details at the end
     const originalSpecs = this.extractOriginalSpecifications(originalDescription);
     if (originalSpecs) {
-      lines.push('');
+      lines.push(''); // Empty line for breathing room
       lines.push('**Specifications:**');
       lines.push(originalSpecs);
     }
@@ -1057,6 +1060,123 @@ export class KeywordResearchService {
     
     const seed = this.hashString(productId + productName + 'concise_commercial');
     return commercialIntents[seed % commercialIntents.length];
+  }
+
+  // SCANNABLE CONTENT GENERATION METHODS
+  // These methods create short, scannable content with clear visual breaks
+
+  private generateScannableHook(product: any, primaryKeyword: any, analysis: SEOAnalysis): string {
+    const productName = product.title;
+    const productId = product.id || '0';
+    
+    // Short, impactful hooks
+    const hooks = [
+      `**Discover the ${productName}** - a stunning ${primaryKeyword.keyword} that captures hearts and creates lasting memories.`,
+      `**Introducing the ${productName}** - an elegant ${primaryKeyword.keyword} designed to make her feel truly special.`,
+      `**Meet the ${productName}** - a beautiful ${primaryKeyword.keyword} that's perfect for the woman you love.`,
+      `**The ${productName}** - a gorgeous ${primaryKeyword.keyword} that speaks volumes about your love.`,
+      `**Experience the ${productName}** - a timeless ${primaryKeyword.keyword} that celebrates your special bond.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'scannable_hook');
+    return hooks[seed % hooks.length];
+  }
+
+  private generateScannableOverview(product: any, analysis: SEOAnalysis, specs: any): string {
+    const productName = product.title;
+    const productType = this.getProductType(product.title);
+    const productId = product.id || '0';
+    const primaryKeyword = analysis.primaryKeywords[0];
+    
+    // Short, scannable overviews
+    const overviews = [
+      `This ${productName} showcases the perfect blend of ${primaryKeyword.keyword} and elegant design. Crafted with premium materials and attention to detail.`,
+      `The ${productName} combines timeless beauty with modern sophistication. Made from high-quality materials that ensure lasting durability.`,
+      `This beautiful ${productName} features exquisite craftsmanship and premium materials. Perfect for both everyday wear and special occasions.`,
+      `The ${productName} embodies romantic elegance and superior quality. Designed to be treasured for years to come.`,
+      `This stunning ${productName} offers the perfect combination of style and durability. Made with love and attention to every detail.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'scannable_overview');
+    return overviews[seed % overviews.length];
+  }
+
+  private generateScannableOccasions(product: any, longTailKeywords: any[], analysis: SEOAnalysis): string {
+    const productName = product.title;
+    const productId = product.id || '0';
+    
+    // Get occasion keywords
+    const occasionKeywords = longTailKeywords.filter(kw => 
+      kw.keyword.includes('anniversary') || 
+      kw.keyword.includes('valentine') || 
+      kw.keyword.includes('birthday') ||
+      kw.keyword.includes('engagement') ||
+      kw.keyword.includes('gift')
+    );
+    
+    const occasionKeyword = occasionKeywords[0]?.keyword || 'special occasions';
+    
+    // Short, scannable occasion info
+    const occasions = [
+      `Anniversaries, Valentine's Day, birthdays, engagements, or just because you love her.`,
+      `Special celebrations, romantic gestures, milestone moments, and everyday love.`,
+      `Date nights, proposals, holidays, graduations, and meaningful celebrations.`,
+      `Love declarations, special surprises, romantic dates, and cherished moments.`,
+      `Meaningful occasions, love celebrations, and times when you want to show you care.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'scannable_occasions');
+    return occasions[seed % occasions.length];
+  }
+
+  private generateScannableQuality(product: any, specs: any, semanticKeywords: string[], analysis: SEOAnalysis): string {
+    const productName = product.title;
+    const productId = product.id || '0';
+    
+    const qualityKeywords = semanticKeywords.filter(kw => 
+      kw.includes('quality') || 
+      kw.includes('craftsmanship') || 
+      kw.includes('premium') ||
+      kw.includes('durable')
+    );
+    
+    // Short, scannable quality info
+    const qualityInfo = [
+      `Crafted with premium materials and expert techniques. Each piece is carefully inspected for flawless finish.`,
+      `Made from high-quality materials with traditional craftsmanship. Built to last and designed to be cherished.`,
+      `Superior quality materials and meticulous attention to detail. Every piece is crafted with love and precision.`,
+      `Premium materials and artisan craftsmanship. Designed to exceed expectations and create lasting beauty.`,
+      `High-quality construction and expert finishing. Made to be treasured for generations to come.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'scannable_quality');
+    return qualityInfo[seed % qualityInfo.length];
+  }
+
+  private generateScannableCTA(product: any, primaryKeyword: any, analysis: SEOAnalysis): string {
+    const productName = product.title;
+    const productId = product.id || '0';
+    
+    const commercialKeywords = analysis.longTailKeywords.filter(kw => 
+      kw.keyword.includes('buy') || 
+      kw.keyword.includes('gift') || 
+      kw.keyword.includes('online') ||
+      kw.keyword.includes('order')
+    );
+    
+    const giftKeyword = commercialKeywords.find(kw => kw.keyword.includes('gift'))?.keyword || 'gift';
+    
+    // Short, scannable CTAs
+    const ctas = [
+      `Order now and watch her face light up with joy. Free shipping across New Zealand.`,
+      `Make her day - order today and create a memory she'll treasure forever.`,
+      `Give her the perfect ${giftKeyword} - order now and make her feel special.`,
+      `Show her you care - order today and create a moment she'll never forget.`,
+      `Make her heart skip - order now and give her a gift from the heart.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'scannable_cta');
+    return ctas[seed % ctas.length];
   }
 
   // COMPREHENSIVE SEO GENERATION METHODS
