@@ -304,13 +304,13 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-1">SEO Title</label>
                               <div className="p-2 bg-gray-50 rounded text-sm">
-                                <p className="text-xs text-gray-700 truncate">{originalContent.seoTitle || 'No SEO title'}</p>
+                                <p className="text-sm text-gray-700">{originalContent.seoTitle || 'No SEO title'}</p>
                               </div>
                             </div>
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-1">Meta Description</label>
-                              <div className="p-2 bg-gray-50 rounded text-sm">
-                                <p className="text-xs text-gray-700 truncate">{originalContent.seoDescription || 'No meta description'}</p>
+                              <div className="p-3 bg-gray-50 rounded text-sm min-h-[60px]">
+                                <p className="text-sm text-gray-700 leading-relaxed">{originalContent.seoDescription || 'No meta description'}</p>
                               </div>
                             </div>
                           </div>
@@ -338,13 +338,13 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-1">SEO Title</label>
                               <div className="p-2 bg-white rounded border border-green-200 text-sm">
-                                <p className="text-xs text-gray-700 truncate">{displayOptimizedContent.seoTitle || 'No SEO title'}</p>
+                                <p className="text-sm text-gray-700">{displayOptimizedContent.seoTitle || 'No SEO title'}</p>
                               </div>
                             </div>
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-1">Meta Description</label>
-                              <div className="p-2 bg-white rounded border border-green-200 text-sm">
-                                <p className="text-xs text-gray-700 truncate">{displayOptimizedContent.seoDescription || 'No meta description'}</p>
+                              <div className="p-3 bg-white rounded border border-green-200 text-sm min-h-[60px]">
+                                <p className="text-sm text-gray-700 leading-relaxed">{displayOptimizedContent.seoDescription || 'No meta description'}</p>
                               </div>
                             </div>
                           </div>
