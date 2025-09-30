@@ -619,6 +619,8 @@ export class KeywordResearchService {
         .replace(/\s+/g, ' ') // Normalize whitespace
         .replace(/(Material:|Weight:|Chain Length:|Pendant Size:|Colour Options:|Note:)/g, '\n$1') // Add line breaks before each spec
         .replace(/\n\s*\n/g, '\n\n') // Clean up multiple newlines
+        .replace(/\n\s+/g, '\n') // Remove leading spaces from lines
+        .replace(/\s+\n/g, '\n') // Remove trailing spaces from lines
         .trim();
       
       // If it's a substantial specifications section, return it
@@ -646,13 +648,24 @@ export class KeywordResearchService {
     specPatterns.forEach(pattern => {
       const matches = originalDescription.match(pattern);
       if (matches) {
-        foundSpecs.push(...matches);
+        // Clean up each match
+        const cleanedMatches = matches.map(match => 
+          match
+            .replace(/<\/?[^>]+(>|$)/g, '') // Remove HTML tags
+            .replace(/&nbsp;/g, ' ') // Replace &nbsp; with spaces
+            .replace(/&amp;/g, '&') // Replace &amp; with &
+            .replace(/&lt;/g, '<') // Replace &lt; with <
+            .replace(/&gt;/g, '>') // Replace &gt; with >
+            .replace(/\s+/g, ' ') // Normalize whitespace
+            .trim()
+        );
+        foundSpecs.push(...cleanedMatches);
       }
     });
     
     if (foundSpecs.length === 0) return null;
     
-    return foundSpecs.join('\n\n');
+    return foundSpecs.join('\n');
   }
 
   // EMOTIONAL STORYTELLING METHODS
