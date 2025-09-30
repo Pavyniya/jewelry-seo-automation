@@ -183,87 +183,88 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-1">
-      <div className="bg-white rounded-xl max-w-[95vw] w-full max-h-[98vh] overflow-hidden flex flex-col shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
-          <div className="flex items-center gap-4">
-            <h2 className="text-3xl font-bold text-gray-900">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
+      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col shadow-2xl">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold text-gray-900">
               Review SEO Optimization
             </h2>
-            <Badge className="bg-blue-100 text-blue-800 px-3 py-1 text-sm font-medium">
+            <Badge className="bg-blue-100 text-blue-800 px-2 py-1 text-xs">
               {product.status}
             </Badge>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            <X className="h-6 w-6" />
-          </Button>
+          <div className="flex items-center gap-3">
+            {qualityScore && (
+              <div className="text-right bg-white p-2 rounded border">
+                <div className="text-lg font-bold text-green-600">
+                  {qualityScore.overall}%
+                </div>
+                <div className="text-xs text-gray-600">
+                  Quality Score
+                </div>
+              </div>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="p-1 hover:bg-gray-200 rounded"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
-        {/* Product Info */}
-        <div className="p-6 border-b bg-gray-50">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+        {/* Compact Product Info */}
+        <div className="p-4 border-b bg-gray-50">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-gray-900 truncate">
                 {product.title}
               </h3>
-              <div className="flex items-center gap-6 text-sm text-gray-600">
-                <span className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
+              <div className="flex items-center gap-4 text-xs text-gray-600 mt-1">
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
                   {product.updatedAt ? new Date(product.updatedAt).toLocaleDateString() : 'Recently updated'}
                 </span>
                 {product.variants && product.variants.length > 0 && (
-                  <span className="bg-gray-200 px-2 py-1 rounded">
+                  <span className="bg-gray-200 px-2 py-0.5 rounded text-xs">
                     {product.variants.length} variant{product.variants.length > 1 ? 's' : ''}
                   </span>
                 )}
                 {product.variants && product.variants.length > 0 && product.variants[0].price && (
-                  <span className="font-semibold text-lg text-green-600">
+                  <span className="font-semibold text-green-600">
                     ${parseFloat(product.variants[0].price)}
                   </span>
                 )}
               </div>
             </div>
-
-            {qualityScore && (
-              <div className="text-right bg-white p-4 rounded-lg shadow-sm border">
-                <div className="text-3xl font-bold text-green-600">
-                  {qualityScore.overall}%
-                </div>
-                <div className="text-sm text-gray-600 font-medium">
-                  Quality Score
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6">
-            {/* View Toggle */}
-            <div className="flex gap-3 mb-8">
+          <div className="p-4">
+            {/* Compact View Toggle */}
+            <div className="flex gap-2 mb-4">
               <Button
                 variant={currentView === 'overview' ? 'default' : 'outline'}
-                size="lg"
+                size="sm"
                 onClick={() => setCurrentView('overview')}
-                className="px-6 py-3"
+                className="px-3 py-2 text-sm"
               >
                 Overview
               </Button>
               <Button
                 variant={currentView === 'comparison' ? 'default' : 'outline'}
-                size="lg"
+                size="sm"
                 onClick={() => setCurrentView('comparison')}
-                className="px-6 py-3"
+                className="px-3 py-2 text-sm"
               >
-                <Eye className="h-5 w-5 mr-2" />
-                Side-by-Side Comparison
+                <Eye className="h-4 w-4 mr-1" />
+                Comparison
               </Button>
             </div>
 
@@ -273,189 +274,120 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                 <p className="text-lg text-gray-600">Generating optimized content...</p>
               </div>
             ) : currentView === 'overview' ? (
-              <div className="space-y-8">
-                {/* Enhanced Content Preview */}
-                <Card className="shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50">
-                    <CardTitle className="text-xl font-bold">Content Preview</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                      {/* Original Content */}
-                      <div className="p-8 border-r border-gray-200">
-                        <div className="flex items-center gap-2 mb-6">
-                          <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                          <h4 className="text-xl font-semibold text-gray-900">Original Content</h4>
-                        </div>
-                        <div className="space-y-8">
-                          <div>
-                            <label className="block text-lg font-semibold text-gray-700 mb-4">Product Title</label>
-                            <div className="p-4 bg-gray-50 rounded-lg border">
-                              <p className="text-lg font-medium text-gray-900 leading-relaxed">{originalContent.title}</p>
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-lg font-semibold text-gray-700 mb-4">Description</label>
-                            <div className="max-h-[500px] overflow-y-auto p-6 bg-gray-50 rounded-lg border">
-                              <p className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap">{originalContent.description}</p>
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-lg font-semibold text-gray-700 mb-4">SEO Title</label>
-                            <div className="p-4 bg-gray-50 rounded-lg border">
-                              <p className="text-base text-gray-700">{originalContent.seoTitle || 'No SEO title set'}</p>
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-lg font-semibold text-gray-700 mb-4">Meta Description</label>
-                            <div className="p-4 bg-gray-50 rounded-lg border">
-                              <p className="text-base text-gray-700">{originalContent.seoDescription || 'No meta description set'}</p>
-                            </div>
-                          </div>
-                        </div>
+              <div className="space-y-4">
+                {/* Compact Content Preview */}
+                <div className="bg-white border rounded-lg overflow-hidden">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                    {/* Original Content */}
+                    <div className="p-4 border-r border-gray-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <h4 className="text-sm font-semibold text-gray-900">Original</h4>
                       </div>
-
-                      {/* Optimized Content */}
-                      <div className="p-8 bg-green-50">
-                        <div className="flex items-center gap-2 mb-6">
-                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                          <h4 className="text-xl font-semibold text-gray-900">Optimized Content</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Title</label>
+                          <div className="p-2 bg-gray-50 rounded text-sm">
+                            <p className="text-sm font-medium text-gray-900 truncate">{originalContent.title}</p>
+                          </div>
                         </div>
-                        <div className="space-y-8">
-                          <div>
-                            <label className="block text-lg font-semibold text-gray-700 mb-4">Product Title</label>
-                            <div className="p-4 bg-white rounded-lg border border-green-200">
-                              <p className="text-lg font-medium text-gray-900 leading-relaxed">{displayOptimizedContent.title}</p>
-                            </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                          <div className="max-h-32 overflow-y-auto p-2 bg-gray-50 rounded text-sm">
+                            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{originalContent.description}</p>
                           </div>
-                          <div>
-                            <label className="block text-lg font-semibold text-gray-700 mb-4">Description</label>
-                            <div className="max-h-[500px] overflow-y-auto p-6 bg-white rounded-lg border border-green-200">
-                              <p className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap">{displayOptimizedContent.description}</p>
-                            </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">SEO Title</label>
+                          <div className="p-2 bg-gray-50 rounded text-sm">
+                            <p className="text-xs text-gray-700 truncate">{originalContent.seoTitle || 'No SEO title'}</p>
                           </div>
-                          <div>
-                            <label className="block text-lg font-semibold text-gray-700 mb-4">SEO Title</label>
-                            <div className="p-4 bg-white rounded-lg border border-green-200">
-                              <p className="text-base text-gray-700">{displayOptimizedContent.seoTitle || 'No SEO title set'}</p>
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-lg font-semibold text-gray-700 mb-4">Meta Description</label>
-                            <div className="p-4 bg-white rounded-lg border border-green-200">
-                              <p className="text-base text-gray-700">{displayOptimizedContent.seoDescription || 'No meta description set'}</p>
-                            </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Meta Description</label>
+                          <div className="p-2 bg-gray-50 rounded text-sm">
+                            <p className="text-xs text-gray-700 truncate">{originalContent.seoDescription || 'No meta description'}</p>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
 
-                {/* Enhanced Content Summary */}
-                <Card className="shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <CardTitle className="text-xl font-bold">Optimization Summary</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Original Content Stats */}
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                          <h4 className="text-lg font-semibold text-gray-900">Original Content</h4>
-                        </div>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span className="text-gray-700 font-medium">Title Length:</span>
-                            <span className="text-lg font-semibold text-gray-900">{originalContent.title.length} chars</span>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span className="text-gray-700 font-medium">Description:</span>
-                            <span className="text-lg font-semibold text-gray-900">{originalContent.description.split(' ').length} words</span>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span className="text-gray-700 font-medium">SEO Score:</span>
-                            <span className="text-lg font-semibold text-yellow-600">65/100</span>
-                          </div>
-                        </div>
+                    {/* Optimized Content */}
+                    <div className="p-4 bg-green-50">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <h4 className="text-sm font-semibold text-gray-900">Optimized</h4>
                       </div>
-
-                      {/* Optimized Content Stats */}
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                          <h4 className="text-lg font-semibold text-gray-900">Optimized Content</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Title</label>
+                          <div className="p-2 bg-white rounded border border-green-200 text-sm">
+                            <p className="text-sm font-medium text-gray-900 truncate">{displayOptimizedContent.title}</p>
+                          </div>
                         </div>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
-                            <span className="text-gray-700 font-medium">Title Length:</span>
-                            <span className="text-lg font-semibold text-green-600">{displayOptimizedContent.title.length} chars</span>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                          <div className="max-h-32 overflow-y-auto p-2 bg-white rounded border border-green-200 text-sm">
+                            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{displayOptimizedContent.description}</p>
                           </div>
-                          <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
-                            <span className="text-gray-700 font-medium">Description:</span>
-                            <span className="text-lg font-semibold text-green-600">{displayOptimizedContent.description.split(' ').length} words</span>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">SEO Title</label>
+                          <div className="p-2 bg-white rounded border border-green-200 text-sm">
+                            <p className="text-xs text-gray-700 truncate">{displayOptimizedContent.seoTitle || 'No SEO title'}</p>
                           </div>
-                          <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
-                            <span className="text-gray-700 font-medium">SEO Score:</span>
-                            <span className="text-lg font-semibold text-green-600">{qualityScore?.overall || 94}/100</span>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Meta Description</label>
+                          <div className="p-2 bg-white rounded border border-green-200 text-sm">
+                            <p className="text-xs text-gray-700 truncate">{displayOptimizedContent.seoDescription || 'No meta description'}</p>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
-                {/* Enhanced Key Improvements */}
-                <Card className="shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50">
-                    <CardTitle className="text-xl font-bold">Key Improvements</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span className="text-white text-sm font-bold">✓</span>
-                          </div>
-                          <div>
-                            <h5 className="font-semibold text-gray-900 mb-2">Enhanced Title Structure</h5>
-                            <p className="text-sm text-gray-600">Added brand positioning and category context for better SEO visibility</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span className="text-white text-sm font-bold">✓</span>
-                          </div>
-                          <div>
-                            <h5 className="font-semibold text-gray-900 mb-2">Rich Product Description</h5>
-                            <p className="text-sm text-gray-600">Added detailed features, benefits, and gift-giving information with emotional appeal</p>
-                          </div>
-                        </div>
+                {/* Compact Summary */}
+                <div className="bg-white border rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Optimization Summary</h4>
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Title Length:</span>
+                        <span className="font-medium">{originalContent.title.length} → {displayOptimizedContent.title.length} chars</span>
                       </div>
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span className="text-white text-sm font-bold">✓</span>
-                          </div>
-                          <div>
-                            <h5 className="font-semibold text-gray-900 mb-2">Improved SEO Meta Data</h5>
-                            <p className="text-sm text-gray-600">Optimized title and description with well-researched target keywords</p>
-                          </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Description:</span>
+                        <span className="font-medium">{originalContent.description.split(' ').length} → {displayOptimizedContent.description.split(' ').length} words</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">SEO Score:</span>
+                        <span className="font-medium text-green-600">65 → {qualityScore?.overall || 94}/100</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="text-xs text-gray-600">
+                        <div className="flex items-center gap-1 mb-1">
+                          <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                          <span className="font-medium">Enhanced Title Structure</span>
                         </div>
-                        <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span className="text-white text-sm font-bold">✓</span>
-                          </div>
-                          <div>
-                            <h5 className="font-semibold text-gray-900 mb-2">Trust Signals Added</h5>
-                            <p className="text-sm text-gray-600">Included guarantee, return policy, and authenticity information for credibility</p>
-                          </div>
+                        <div className="flex items-center gap-1 mb-1">
+                          <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                          <span className="font-medium">Rich Product Description</span>
+                        </div>
+                        <div className="flex items-center gap-1 mb-1">
+                          <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                          <span className="font-medium">Improved SEO Meta Data</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                          <span className="font-medium">Trust Signals Added</span>
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             ) : (
               <ContentComparison
@@ -468,8 +400,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
           </div>
         </div>
 
-        {/* Enhanced Review Actions */}
-        <div className="border-t p-6 bg-gradient-to-r from-gray-50 to-blue-50">
+        {/* Compact Review Actions */}
+        <div className="border-t p-4 bg-gray-50">
           <ReviewActions
             onApprove={handleApprove}
             onReject={handleReject}
