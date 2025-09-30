@@ -183,8 +183,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
-      <div className="bg-white rounded-xl max-w-7xl w-full max-h-[98vh] overflow-hidden flex flex-col shadow-2xl">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-1">
+      <div className="bg-white rounded-xl max-w-[95vw] w-full max-h-[98vh] overflow-hidden flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
           <div className="flex items-center gap-4">
@@ -282,32 +282,32 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   <CardContent className="p-0">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                       {/* Original Content */}
-                      <div className="p-6 border-r border-gray-200">
-                        <div className="flex items-center gap-2 mb-4">
+                      <div className="p-8 border-r border-gray-200">
+                        <div className="flex items-center gap-2 mb-6">
                           <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                          <h4 className="text-lg font-semibold text-gray-900">Original Content</h4>
+                          <h4 className="text-xl font-semibold text-gray-900">Original Content</h4>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">Product Title</label>
+                            <label className="block text-lg font-semibold text-gray-700 mb-4">Product Title</label>
                             <div className="p-4 bg-gray-50 rounded-lg border">
                               <p className="text-lg font-medium text-gray-900 leading-relaxed">{originalContent.title}</p>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">Description</label>
-                            <div className="max-h-80 overflow-y-auto p-4 bg-gray-50 rounded-lg border">
+                            <label className="block text-lg font-semibold text-gray-700 mb-4">Description</label>
+                            <div className="max-h-[500px] overflow-y-auto p-6 bg-gray-50 rounded-lg border">
                               <p className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap">{originalContent.description}</p>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">SEO Title</label>
+                            <label className="block text-lg font-semibold text-gray-700 mb-4">SEO Title</label>
                             <div className="p-4 bg-gray-50 rounded-lg border">
                               <p className="text-base text-gray-700">{originalContent.seoTitle || 'No SEO title set'}</p>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">Meta Description</label>
+                            <label className="block text-lg font-semibold text-gray-700 mb-4">Meta Description</label>
                             <div className="p-4 bg-gray-50 rounded-lg border">
                               <p className="text-base text-gray-700">{originalContent.seoDescription || 'No meta description set'}</p>
                             </div>
@@ -316,32 +316,32 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                       </div>
 
                       {/* Optimized Content */}
-                      <div className="p-6 bg-green-50">
-                        <div className="flex items-center gap-2 mb-4">
+                      <div className="p-8 bg-green-50">
+                        <div className="flex items-center gap-2 mb-6">
                           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                          <h4 className="text-lg font-semibold text-gray-900">Optimized Content</h4>
+                          <h4 className="text-xl font-semibold text-gray-900">Optimized Content</h4>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">Product Title</label>
+                            <label className="block text-lg font-semibold text-gray-700 mb-4">Product Title</label>
                             <div className="p-4 bg-white rounded-lg border border-green-200">
                               <p className="text-lg font-medium text-gray-900 leading-relaxed">{displayOptimizedContent.title}</p>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">Description</label>
-                            <div className="max-h-80 overflow-y-auto p-4 bg-white rounded-lg border border-green-200">
+                            <label className="block text-lg font-semibold text-gray-700 mb-4">Description</label>
+                            <div className="max-h-[500px] overflow-y-auto p-6 bg-white rounded-lg border border-green-200">
                               <p className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap">{displayOptimizedContent.description}</p>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">SEO Title</label>
+                            <label className="block text-lg font-semibold text-gray-700 mb-4">SEO Title</label>
                             <div className="p-4 bg-white rounded-lg border border-green-200">
                               <p className="text-base text-gray-700">{displayOptimizedContent.seoTitle || 'No SEO title set'}</p>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">Meta Description</label>
+                            <label className="block text-lg font-semibold text-gray-700 mb-4">Meta Description</label>
                             <div className="p-4 bg-white rounded-lg border border-green-200">
                               <p className="text-base text-gray-700">{displayOptimizedContent.seoDescription || 'No meta description set'}</p>
                             </div>
