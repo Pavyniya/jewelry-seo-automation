@@ -457,65 +457,63 @@ export class KeywordResearchService {
   private generateOptimizedDescription(product: any, analysis: SEOAnalysis): string {
     const originalDescription = product.description || product.body_html || '';
     const primaryKeyword = analysis.primaryKeywords[0];
-    const secondaryKeywords = analysis.secondaryKeywords.slice(0, 5);
-    const longTailKeywords = analysis.longTailKeywords.slice(0, 8);
-    const semanticKeywords = analysis.semanticKeywords.slice(0, 10);
+    const secondaryKeywords = analysis.secondaryKeywords.slice(0, 3);
+    const longTailKeywords = analysis.longTailKeywords.slice(0, 4);
+    const semanticKeywords = analysis.semanticKeywords.slice(0, 5);
     
     // Extract key specs from original description
     const specs = this.extractProductSpecs(originalDescription);
     
-    // COMPREHENSIVE SEO-OPTIMIZED FORMAT - Well-researched keywords
+    // OPTIMIZED SEO FORMAT - 250 words max with product name and keywords
     const lines: string[] = [];
     
-    // 1. EMOTIONAL HOOK WITH PRIMARY KEYWORD - Compelling opening
-    const emotionalHook = this.generateComprehensiveEmotionalHook(product, primaryKeyword, analysis);
+    // 1. EMOTIONAL HOOK WITH PRODUCT NAME - Compelling opening
+    const emotionalHook = this.generateProductNameHook(product, primaryKeyword, analysis);
     lines.push(emotionalHook);
     
-    // 2. DETAILED PRODUCT DESCRIPTION - Rich with keywords
-    const detailedDescription = this.generateDetailedProductDescription(product, analysis, specs);
+    // 2. PRODUCT DESCRIPTION WITH NAME - Rich with keywords
+    const productDescription = this.generateProductNameDescription(product, analysis, specs);
     lines.push('');
-    lines.push(detailedDescription);
+    lines.push(productDescription);
     
-    // 3. COMPREHENSIVE BENEFITS - Multiple keyword variations
+    // 3. KEY BENEFITS - Essential benefits only
     lines.push('');
-    lines.push('**Why This Jewelry Piece Stands Out:**');
-    const comprehensiveBenefits = this.generateComprehensiveBenefits(product, analysis, specs);
-    comprehensiveBenefits.forEach(benefit => lines.push(`• ${benefit}`));
+    lines.push('**Why She\'ll Love This ' + product.title + ':**');
+    const keyBenefits = this.generateKeyBenefits(product, analysis, specs);
+    keyBenefits.forEach(benefit => lines.push(`• ${benefit}`));
     
-    // 4. OCCASION-SPECIFIC CONTENT - Long-tail keyword integration
+    // 4. OCCASION CONTENT - Concise occasion info
     lines.push('');
-    const occasionContent = this.generateOccasionSpecificContent(product, longTailKeywords, analysis);
+    const occasionContent = this.generateConciseOccasionContent(product, longTailKeywords, analysis);
     lines.push(occasionContent);
     
-    // 5. QUALITY AND CRAFTSMANSHIP - Semantic keywords
+    // 5. QUALITY ASSURANCE - Short quality promise
     lines.push('');
-    const qualityContent = this.generateQualityAndCraftsmanship(product, specs, semanticKeywords, analysis);
+    const qualityContent = this.generateConciseQualityContent(product, specs, semanticKeywords, analysis);
     lines.push(qualityContent);
     
-    // 6. STYLING AND CARE INSTRUCTIONS - Additional keywords
+    // 6. CALL TO ACTION - Simple and clear
     lines.push('');
-    const stylingContent = this.generateStylingAndCareInstructions(product, analysis);
-    lines.push(stylingContent);
-    
-    // 7. EMOTIONAL STORYTELLING - Commercial intent keywords
-    lines.push('');
-    const emotionalStory = this.generateEmotionalStorytelling(product, analysis);
-    lines.push(emotionalStory);
-    
-    // 8. CALL TO ACTION - Conversion-focused
-    lines.push('');
-    const commercialIntent = this.generateComprehensiveCommercialIntent(product, primaryKeyword, analysis);
+    const commercialIntent = this.generateConciseCommercialIntent(product, primaryKeyword, analysis);
     lines.push(commercialIntent);
     
-    // 9. SPECIFICATIONS - Technical details at the end
+    // 7. SPECIFICATIONS - Technical details at the end
     const originalSpecs = this.extractOriginalSpecifications(originalDescription);
     if (originalSpecs) {
       lines.push('');
-      lines.push('**Technical Specifications:**');
+      lines.push('**Specifications:**');
       lines.push(originalSpecs);
     }
     
-    return lines.join('\n');
+    const result = lines.join('\n');
+    
+    // ENFORCE 250 WORD LIMIT
+    const words = result.split(/\s+/);
+    if (words.length > 250) {
+      return words.slice(0, 245).join(' ') + '...';
+    }
+    
+    return result;
   }
 
   private getProblemSolution(primaryKeyword: string, quality: string): string {
@@ -878,6 +876,187 @@ export class KeywordResearchService {
     if (titleLower.includes('earring')) return 'earrings';
     if (titleLower.includes('ring')) return 'ring';
     return 'jewelry';
+  }
+
+  // CONCISE SEO GENERATION METHODS
+  // These methods create optimized, keyword-rich content with product names under 250 words
+
+  private generateProductNameHook(product: any, primaryKeyword: any, analysis: SEOAnalysis): string {
+    const productName = product.title;
+    const productType = this.getProductType(product.title);
+    const productId = product.id || '0';
+    
+    // Get emotional keywords for natural integration
+    const emotionalKeywords = analysis.longTailKeywords.filter(kw => 
+      kw.keyword.includes('romantic') || 
+      kw.keyword.includes('elegant') || 
+      kw.keyword.includes('special occasion') ||
+      kw.keyword.includes('meaningful') ||
+      kw.keyword.includes('timeless')
+    );
+    
+    const selectedEmotionalKeyword = emotionalKeywords[0]?.keyword || primaryKeyword.keyword;
+    
+    // Product name hooks with emotional appeal
+    const productNameHooks = [
+      `**Discover the ${productName}** - a stunning ${primaryKeyword.keyword} that captures hearts and creates lasting memories.`,
+      `**The ${productName} is here** - an exquisite ${selectedEmotionalKeyword} designed to make her feel truly special.`,
+      `**Meet the beautiful ${productName}** - a romantic ${primaryKeyword.keyword} that tells your love story.`,
+      `**Introducing the ${productName}** - an elegant piece that combines timeless beauty with modern sophistication.`,
+      `**The ${productName} awaits** - a meaningful ${primaryKeyword.keyword} perfect for celebrating your most precious moments.`,
+      `**Experience the ${productName}** - a gorgeous piece that radiates love and devotion.`,
+      `**The ${productName} shines** - a stunning ${primaryKeyword.keyword} that will become her most treasured accessory.`,
+      `**Fall in love with the ${productName}** - a beautiful piece crafted to celebrate the special woman in your life.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'product_hook');
+    return productNameHooks[seed % productNameHooks.length];
+  }
+
+  private generateProductNameDescription(product: any, analysis: SEOAnalysis, specs: any): string {
+    const productName = product.title;
+    const productType = this.getProductType(product.title);
+    const productId = product.id || '0';
+    
+    const primaryKeyword = analysis.primaryKeywords[0];
+    const secondaryKeywords = analysis.secondaryKeywords.slice(0, 2);
+    const semanticKeywords = analysis.semanticKeywords.slice(0, 3);
+    
+    // Product name descriptions with keywords
+    const productDescriptions = [
+      `This ${productName} showcases the perfect blend of ${secondaryKeywords[0]?.keyword || 'elegant design'} and ${secondaryKeywords[1]?.keyword || 'timeless beauty'}. Crafted with ${semanticKeywords[0] || 'premium materials'} and ${semanticKeywords[1] || 'expert craftsmanship'}, this ${productType} features ${semanticKeywords[2] || 'sophisticated details'} that make it perfect for both everyday wear and special occasions.`,
+      
+      `The ${productName} combines ${secondaryKeywords[0]?.keyword || 'classic elegance'} with ${secondaryKeywords[1]?.keyword || 'modern sophistication'}. Made with ${semanticKeywords[0] || 'high-quality materials'} and ${semanticKeywords[1] || 'traditional techniques'}, this beautiful ${productType} radiates ${semanticKeywords[2] || 'timeless charm'} and will be treasured for years to come.`,
+      
+      `Experience the allure of the ${productName} that embodies ${secondaryKeywords[0]?.keyword || 'romantic elegance'} and ${secondaryKeywords[1]?.keyword || 'sophisticated style'}. This gorgeous ${productType} features ${semanticKeywords[0] || 'intricate detailing'} and ${semanticKeywords[1] || 'luxurious finish'}, making it an ideal choice for the modern woman who appreciates quality and style.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'product_description');
+    return productDescriptions[seed % productDescriptions.length];
+  }
+
+  private generateKeyBenefits(product: any, analysis: SEOAnalysis, specs: any): string[] {
+    const productName = product.title;
+    const productType = this.getProductType(product.title);
+    const productId = product.id || '0';
+    
+    const primaryKeyword = analysis.primaryKeywords[0];
+    const secondaryKeywords = analysis.secondaryKeywords.slice(0, 2);
+    const longTailKeywords = analysis.longTailKeywords.slice(0, 2);
+    
+    // Key benefits with product name and keywords
+    const benefitSets = [
+      [
+        `Makes her feel truly special with its ${primaryKeyword.keyword} charm`,
+        `Boosts confidence and radiates elegance in any setting`,
+        `Becomes her most treasured piece and conversation starter`,
+        `Perfect for both casual and formal occasions`,
+        `Crafted with ${secondaryKeywords[0]?.keyword || 'premium materials'} for lasting beauty`,
+        `Easy to style with any outfit for versatile wear`
+      ],
+      [
+        `Draws compliments everywhere she goes with its stunning design`,
+        `Symbol of your devotion and love for her`,
+        `Enhances her natural beauty and personal style`,
+        `Comfortable to wear all day without irritation`,
+        `Made with ${secondaryKeywords[1]?.keyword || 'durable materials'} that resist tarnishing`,
+        `Perfect ${longTailKeywords[0]?.keyword || 'gift for her'} that shows you care`
+      ],
+      [
+        `Radiant and confident look that turns heads`,
+        `Cherished reminder of your special bond`,
+        `Beautiful expression of love and commitment`,
+        `Timeless design that never goes out of style`,
+        `Crafted with attention to detail for quality`,
+        `Perfect for ${longTailKeywords[1]?.keyword || 'anniversary celebrations'} and milestones`
+      ]
+    ];
+    
+    const seed = this.hashString(productId + productName + 'key_benefits');
+    return benefitSets[seed % benefitSets.length];
+  }
+
+  private generateConciseOccasionContent(product: any, longTailKeywords: any[], analysis: SEOAnalysis): string {
+    const productName = product.title;
+    const productType = this.getProductType(product.title);
+    const productId = product.id || '0';
+    
+    const primaryKeyword = analysis.primaryKeywords[0];
+    const occasionKeywords = longTailKeywords.filter(kw => 
+      kw.keyword.includes('anniversary') || 
+      kw.keyword.includes('valentine') || 
+      kw.keyword.includes('birthday') ||
+      kw.keyword.includes('gift') ||
+      kw.keyword.includes('wedding')
+    );
+    
+    const selectedOccasionKeyword = occasionKeywords[0]?.keyword || 'special occasion';
+    
+    // Concise occasion content with product name
+    const occasionContent = [
+      `**Perfect for Every Special Moment:** The ${productName} is ideal for ${selectedOccasionKeyword}, romantic dinners, anniversary celebrations, Valentine's Day surprises, and birthday presents. This beautiful ${primaryKeyword.keyword} will make any moment unforgettable and works perfectly for both intimate gatherings and grand celebrations.`,
+      
+      `**Ideal for Romantic Occasions:** Create magical memories with the ${productName} that's perfect for ${selectedOccasionKeyword}, date nights, proposal moments, and Valentine's Day celebrations. This romantic ${primaryKeyword.keyword} captures the essence of love and devotion, making it the perfect ${occasionKeywords[1]?.keyword || 'anniversary gift'} for any special moment.`,
+      
+      `**Celebrate Life's Beautiful Moments:** The ${productName} is designed for ${selectedOccasionKeyword}, holiday celebrations, graduation ceremonies, and everyday moments of joy. This timeless ${primaryKeyword.keyword} adds beauty and meaning to every special moment in your relationship.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'concise_occasion');
+    return occasionContent[seed % occasionContent.length];
+  }
+
+  private generateConciseQualityContent(product: any, specs: any, semanticKeywords: string[], analysis: SEOAnalysis): string {
+    const productName = product.title;
+    const productType = this.getProductType(product.title);
+    const productId = product.id || '0';
+    
+    const primaryKeyword = analysis.primaryKeywords[0];
+    const qualityKeywords = semanticKeywords.filter(kw => 
+      kw.includes('quality') || 
+      kw.includes('craftsmanship') || 
+      kw.includes('premium') ||
+      kw.includes('durable')
+    );
+    
+    // Concise quality content with product name
+    const qualityContent = [
+      `**Superior Quality & Craftsmanship:** The ${productName} is crafted with ${qualityKeywords[0] || 'premium materials'} and ${qualityKeywords[1] || 'expert techniques'} that ensure lasting beauty and durability. Each piece undergoes ${qualityKeywords[2] || 'rigorous quality control'} to meet the highest standards, ensuring you receive a ${productType} that will be treasured for generations.`,
+      
+      `**Premium Materials & Artisan Craftsmanship:** Experience the difference of ${qualityKeywords[0] || 'superior quality'} with the ${productName} made from ${qualityKeywords[1] || 'premium materials'} and crafted using ${qualityKeywords[2] || 'traditional techniques'}. Each piece is carefully inspected for ${qualityKeywords[3] || 'flawless finish'}, ensuring you receive a ${productType} that exceeds expectations.`,
+      
+      `**Excellence in Every Detail:** The ${productName} represents the pinnacle of ${qualityKeywords[0] || 'jewelry artistry'} and ${qualityKeywords[1] || 'quality manufacturing'}. Crafted with ${qualityKeywords[2] || 'premium materials'} and ${qualityKeywords[3] || 'precision techniques'}, this ${productType} showcases ${qualityKeywords[4] || 'exceptional beauty'} and ${qualityKeywords[5] || 'lasting durability'}.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'concise_quality');
+    return qualityContent[seed % qualityContent.length];
+  }
+
+  private generateConciseCommercialIntent(product: any, primaryKeyword: any, analysis: SEOAnalysis): string {
+    const productName = product.title;
+    const productType = this.getProductType(product.title);
+    const productId = product.id || '0';
+    
+    const commercialKeywords = analysis.longTailKeywords.filter(kw => 
+      kw.keyword.includes('buy') || 
+      kw.keyword.includes('gift') || 
+      kw.keyword.includes('online') ||
+      kw.keyword.includes('order')
+    );
+    
+    const giftKeyword = commercialKeywords.find(kw => kw.keyword.includes('gift'))?.keyword || 'gift';
+    const buyKeyword = commercialKeywords.find(kw => kw.keyword.includes('buy'))?.keyword || 'buy online';
+    
+    // Concise commercial intent with product name
+    const commercialIntents = [
+      `**Order the ${productName} Today:** Don't wait to make her dreams come true! ${buyKeyword} now and watch her face light up with joy. With fast shipping across New Zealand and a satisfaction guarantee, this ${giftKeyword} is perfect for any occasion. Order now and make her feel like the most special woman in the world!`,
+      
+      `**Give Her the Perfect ${productName}:** Show her how much you care with this beautiful ${primaryKeyword.keyword} that's sure to steal her heart. ${buyKeyword} today and enjoy free shipping throughout New Zealand, plus our 30-day return policy. This romantic piece is perfect for anniversaries, Valentine's Day, birthdays, or just because you love her.`,
+      
+      `**Make Her Heart Skip with the ${productName}:** This gorgeous ${primaryKeyword.keyword} is waiting to become her most treasured piece. ${buyKeyword} now and enjoy fast, free shipping across New Zealand. Whether it's for a special occasion or just because, this ${giftKeyword} will show her exactly how much she means to you.`
+    ];
+    
+    const seed = this.hashString(productId + productName + 'concise_commercial');
+    return commercialIntents[seed % commercialIntents.length];
   }
 
   // COMPREHENSIVE SEO GENERATION METHODS
