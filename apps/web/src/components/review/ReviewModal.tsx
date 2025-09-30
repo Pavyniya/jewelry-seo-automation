@@ -183,8 +183,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
-      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col shadow-2xl">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-1">
+      <div className="bg-white rounded-lg max-w-[90vw] w-full max-h-[96vh] overflow-hidden flex flex-col shadow-2xl">
         {/* Compact Header */}
         <div className="flex items-center justify-between p-4 border-b bg-gray-50">
           <div className="flex items-center gap-3">
@@ -293,8 +293,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                         </div>
                         <div>
                           <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
-                          <div className="max-h-32 overflow-y-auto p-2 bg-gray-50 rounded text-sm">
-                            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{originalContent.description}</p>
+                          <div className="max-h-48 overflow-y-auto p-3 bg-gray-50 rounded text-sm">
+                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{originalContent.description}</p>
                           </div>
                         </div>
                         <div>
@@ -327,8 +327,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                         </div>
                         <div>
                           <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
-                          <div className="max-h-32 overflow-y-auto p-2 bg-white rounded border border-green-200 text-sm">
-                            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{displayOptimizedContent.description}</p>
+                          <div className="max-h-48 overflow-y-auto p-3 bg-white rounded border border-green-200 text-sm">
+                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{displayOptimizedContent.description}</p>
                           </div>
                         </div>
                         <div>
