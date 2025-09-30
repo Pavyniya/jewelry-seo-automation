@@ -418,20 +418,19 @@ export class KeywordResearchService {
 
   private generateSEOTitle(product: any, primaryKeyword: KeywordData, secondaryKeyword?: KeywordData): string {
     const brand = 'Ohh Glam';
-    const productTitle = product.title; // Keep original product title
     
     // MOBILE-FIRST: Front-load benefits and commercial intent
     const mainQuality = this.getMainQuality(product);
     
-    // SEO title with keywords but keeping original product title
-    let title = `${productTitle} - ${mainQuality} ${primaryKeyword.keyword} NZ | ${brand}`;
+    // SEO title with keywords (separate from product title)
+    let title = `${mainQuality} ${primaryKeyword.keyword} NZ | ${brand}`;
     
     if (title.length > 60) {
-      title = `${productTitle} - ${primaryKeyword.keyword} | ${brand}`;
+      title = `${primaryKeyword.keyword} ${mainQuality} | ${brand}`;
     }
     
     if (title.length > 60) {
-      title = `${productTitle} | ${brand} NZ`;
+      title = `${primaryKeyword.keyword} | ${brand} NZ`;
     }
     
     return title.substring(0, 60);
